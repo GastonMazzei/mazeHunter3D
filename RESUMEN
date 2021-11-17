@@ -1,0 +1,45 @@
+REWRITE: 
+Gardien.h, Chasseur.h, Chasseur.cpp, Labyrinthe.h and Labyrinthe.cpp
+El capital inicial del cazador y guardias, y el tiempo hasta completa recuepracion, deberian ser parametros del programa.
+
+
+NOTES: 
+-poner comments
+- tenes un survival capital que se recupera solo con el tiempo.
+-los guardias tienen dos estados: si ven al cazador van a attack mode, sino patrol mode. La definicion de ver es la de que no hayan obstaculos en la linea que los une.
+- los guardais y el cazador tienen un valor de accuracy.
+-Heredar de las clases "Environment" y "Mover". La primera permite poner posters en las paredes,-encapsulate your data and methods to get robust programs.
+-separating the processing part of a program from its user interface part.
+-your Labyrinth class
+(derived from Environment) must have a constructor which takes a char* argument which is the
+name of the file defining the maze.
+
+TIP:
+Among other things, start by identifying the objects involved in the program, indicate how these objects
+relate to each other to do what you are asked to do. At the same time, start listing the characteristics of
+these objects: attributes and methods, to identify their class. Then, look at the relationships between these
+classes, perhaps they share characteristics? You can implement these relationships with derivation or use.
+
+
+useful functions:
+The Environment::scale constant is a scale factor to convert floating point coordinates of
+characters into integer coordinates in the map
+void partie_terminee (bool)
+Call this function with 'true' if the player has won and 'false' if he has lost. In both cases it will disable the possibility of shooting for the hunter and it will display the message 'You Win!' or 'You Lose!
+
+void message (char* format, ...)
+displays a message at the top left of the window. This function is of type 'printf', with a variable number of arguments of any type.
+
+message ("Nombre de gardiens restants: %d", nb_gardiens);
+          // affiche le nombre de gardiens.
+...
+message (""); // efface le message prÃ©cÃ©dent.
+The first argument has the same syntax as for the 'printf' function ('man printf' for more details).
+The sound system allows to control the volume and the stereophonic position of a sound. For this the Sound::play function has two (optional) arguments:
+void Sound::play (float volume, float pan)
+
+'volume' is a number between 0 and 1 (the bigger it is, the louder it is)
+'pan' is a number between 0 (left) and 1 (right).
+
+
+

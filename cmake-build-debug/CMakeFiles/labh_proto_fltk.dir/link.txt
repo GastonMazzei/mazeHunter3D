@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/labh_proto_fltk.dir/main.cpp.o -o labh_proto_fltk 
