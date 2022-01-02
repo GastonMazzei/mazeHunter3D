@@ -85,3 +85,6 @@ clean:
 
 Labyrinthe.o:	Labyrinthe.h Environnement.h Chasseur.h Mover.h Gardien.h
 Chasseur.o:		Chasseur.cc Chasseur.h Mover.h
+
+test:
+	bash tests/batterie.sh tests .
