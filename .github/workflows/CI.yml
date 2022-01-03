@@ -22,9 +22,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-	  - name: Configure
-	    run: cmake
-	  
+      - name: Configure
+      run: cmake .
+
       # Runs a single command using the runners shell
       - name: Compile
         run: make
