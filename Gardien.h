@@ -1,3 +1,7 @@
+
+#include <random>
+#include<ctime>
+
 #ifndef GARDIEN_H
 #define GARDIEN_H
 
@@ -17,7 +21,7 @@ class Labyrinthe;
 class Gardien : public Mover {
 public:
 	Gardien (Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
-	{}
+	{std::srand(time(0));}
 
 	void update (void);
 	bool move (double dx, double dy);
@@ -30,15 +34,22 @@ private:
 	// is the chasseur visible?
 	bool isChasseurVisible = false;
 	// a real-valued variable indicates the lifesigns of Gardien
-	float lifesigns = GARDIEN_LIFE;
+	double lifesigns = GARDIEN_LIFE;
 	// a 0-1 number is the probability of the Gardien missing it's target
-	float accuracy =  GARDIEN_ACCURACY;
-	
+	double accuracy =  GARDIEN_ACCURACY;
+	double default_change_threshold = 0.98;
+	double current_change_threshold = 0.98;
+	int x_moving_trend = 1;
+	int y_moving_trend = -1;
+
 	// ***CLASS FUNCTIONS***
 	// Is the chasseur visible? update vars accordingly.
 	void update_chasseur_visibility(void);
 	// The accuracy depends on the gardien's lifesigns.
 	void update_gardien_accuracy(void);
+	// Wrappers for diffeVrent movements
+	void move_towards_chasseur();
+	void move_randomly();
 
 };
 

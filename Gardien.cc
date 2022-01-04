@@ -1,5 +1,5 @@
 #include "Gardien.h"
-
+#include  <iostream>
 
 /*
  *	Move
@@ -7,35 +7,31 @@
 
 bool Gardien::move (double dx, double dy)
 {
-	bool TEST = false;
-	if (TEST) 
+	if (EMPTY == _l -> data (
+				// 1st argument
+				(int) (   (_x + dx) /
+				       	   Environnement::scale
+				        ),
+				 // 2nd argument
+			 	 (int)(    (_y + dy) /
+					   Environnement::scale
+				       )
+				 ))
 	{
-		if (EMPTY == _l -> data (
-					// 1st argument
-					(int) (   (_x + dx) /
-					       	   Environnement::scale
-					        ),
-					 // 2nd argument
-				 	 (int)(    (_y + dy) /
-						   Environnement::scale
-					       )
-					 ))
-		{
-			_x += dx;
-			_y += dy;
-			return true;
-		}
+		_x += dx;
+		_y += dy;
+		return true;
 	}
 	return false;
 }
 
+void Gardien::update_gardien_accuracy(){
+	accuracy = accuracy * 0.99999;
+}
 
-void Gardien::update(void){
-	// Check if our lifesigns are positive
-	// if not: destroy ourselves
-	
+void Gardien::update(void){	
 	// Update accuracy according to life
-	
+	update_gardien_accuracy();
 
 	// Check if the Hunter is visible, and
 	// change the anger status accordingly
@@ -45,6 +41,41 @@ void Gardien::update(void){
 	} else {
 		angry = false;
 	}
+
+	// if we are angry, move towards the Chasseur
+	if (angry){
+		move_towards_chasseur();
+	} else {
+		move_randomly();
+	}
+}
+
+
+void Gardien::move_towards_chasseur(){
+
+	//
+	//
+	
+}
+
+void Gardien::move_randomly(){
+	double xrand = ((double) (std::rand() % 100000)) / 100000.;
+	double yrand = ((double) (std::rand() % 100000)) / 100000.;
+	if (xrand > current_change_threshold){
+		if (x_moving_trend == 1) {
+			x_moving_trend = -1;
+		} else {
+			x_moving_trend = 1;
+		}
+	}
+	if (yrand > current_change_threshold){
+		if (y_moving_trend == 1) {
+			y_moving_trend = -1;
+		} else {
+			y_moving_trend = 1;
+		}
+	}
+	move((double)  x_moving_trend, (double) y_moving_trend);	
 }
 
 void Gardien::update_chasseur_visibility(void){
@@ -58,6 +89,14 @@ void Gardien::update_chasseur_visibility(void){
 // Actively modify
 bool Gardien::process_fireball (float dx, float dy)
 {
+	std::cout << "Ouch! I've received a Fireball and the code of my reaction is not written haha :-)" << std::endl;
+
+	// Decrease life according to the distance :-)
+	// CODE GOES  HERE ;;; TODO
+	
+	// If life terminates extinguish myself :-)	
+
+
 	bool TEST = false;
 	if (TEST)
 	{

@@ -1,5 +1,5 @@
 #include "Chasseur.h"
-
+#include  <iostream>
 /*
  *	Tente un deplacement.
  */
