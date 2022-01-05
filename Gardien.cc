@@ -124,7 +124,7 @@ void Gardien::update_chasseur_visibility(void){
 	// DEBUGGING: while labyrinths are not correctly formed, we 
 	// add the further restriction of guards and chasseurs being
 	// at an L2 distance smaller or equal than THRESHOLD to be visible
-	double THRESHOLD = 50;
+	double THRESHOLD = 500;
 	if (std::sqrt(DX * DX + DY * DY) >= THRESHOLD){
 		isChasseurVisible = false;
 	}
