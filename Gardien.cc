@@ -67,11 +67,10 @@ void Gardien::move_towards_chasseur(){
 	if (L==0) return;
 	// if the distance to Chasseur is smaller or equal than MIN_DIST
 	// then we stand still
-	double MIN_DIST = 2;
+	double MIN_DIST = 0;
 	if (std::sqrt(DX * DX + DY * DY) > MIN_DIST){
 		double dx = DX / (double) L;
 		double dy = DY / (double) L;
-		std::cout << "Moving towards chasseur, dx dy = " <<dx <<" " <<dy<< std::endl;
 		move(dx,dy);	
 	}
 }
@@ -125,7 +124,7 @@ void Gardien::update_chasseur_visibility(void){
 	// DEBUGGING: while labyrinths are not correctly formed, we 
 	// add the further restriction of guards and chasseurs being
 	// at an L2 distance smaller or equal than THRESHOLD to be visible
-	double THRESHOLD = 200;
+	double THRESHOLD = 50;
 	if (std::sqrt(DX * DX + DY * DY) >= THRESHOLD){
 		isChasseurVisible = false;
 	}
