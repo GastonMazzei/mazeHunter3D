@@ -29,7 +29,8 @@ void Gardien::update_gardien_accuracy(){
 	accuracy = accuracy * 0.99999;
 }
 
-void Gardien::update(void){	
+void Gardien::update(void){
+
 	// Update accuracy according to life
 	update_gardien_accuracy();
 
@@ -53,9 +54,26 @@ void Gardien::update(void){
 
 void Gardien::move_towards_chasseur(){
 
-	//
-	//
-	
+	// This is the x-slope that goes from Gardien to Chasseur :-)
+	double DX = (_l->_guards[0]->_x - _x);
+	double DY = (_l->_guards[0]->_y - _y);
+	// Define the discretization required for the step
+	int L;
+	if (DX > DY){
+		L = (int) DX;
+	} else {
+		L = (int) DY;
+	}
+	if (L==0) return;
+	// if the distance to Chasseur is smaller or equal than MIN_DIST
+	// then we stand still
+	double MIN_DIST = 2;
+	if (std::sqrt(DX * DX + DY * DY) > MIN_DIST){
+		double dx = DX / (double) L;
+		double dy = DY / (double) L;
+		std::cout << "Moving towards chasseur, dx dy = " <<dx <<" " <<dy<< std::endl;
+		move(dx,dy);	
+	}
 }
 
 void Gardien::move_randomly(){
@@ -81,7 +99,37 @@ void Gardien::move_randomly(){
 void Gardien::update_chasseur_visibility(void){
 	// TODO
 	// Apply some criteria: is the chasseur visible?
-	isChasseurVisible = false;
+	isChasseurVisible = true;
+	// This is the x-slope that goes from Gardien to Chasseur :-)
+	double DX = (_l->_guards[0]->_x - _x);
+	double DY = (_l->_guards[0]->_y - _y);
+	// Define the discretization required for the step
+	int L;
+	if (DX > DY){
+		L = (int) DX;
+	} else {
+		L = (int) DY;
+	}
+	double dx = DX / (double) L;
+	double dy = DY / (double) L;
+	int ix_x, ix_y;
+	// Is the Chasseur visible?
+	for (int i=1; i<=L; i++) {
+		ix_x = (int) (_x + i * dx);
+		ix_y = (int) (_y + i * dy);
+		if (EMPTY != _l->data(ix_x, ix_y)){
+			isChasseurVisible = false;
+			return;
+		}
+	}
+	// DEBUGGING: while labyrinths are not correctly formed, we 
+	// add the further restriction of guards and chasseurs being
+	// at an L2 distance smaller or equal than THRESHOLD to be visible
+	double THRESHOLD = 200;
+	if (std::sqrt(DX * DX + DY * DY) >= THRESHOLD){
+		isChasseurVisible = false;
+	}
+
 }
 
 
