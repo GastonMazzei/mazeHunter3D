@@ -17,39 +17,209 @@ bool Labyrinthe::is_wall (char c) {
 }
 
 
-void Labyrinthe::find_measurements (std::ifstream lab_file, char *line) {
+char **Labyrinthe::find_measurements (std::ifstream *lab_file, char *line) {
 	//trying to find the max length and height of the maze
-	int maxl = 0;
+	int maxw = 0;
 	int maxh = 0;
-	lab_file.getline(line, 2048);
+	lab_file->getline(line, 2048);
+	
+	//we malloc an array to contain the maze only
+	char **tab = (char**) malloc(258 * sizeof(char*));
+	memset(tab, '\0', 258);
 	
 	//loop until end of file
-	while (!lab_file.eof()) {
+	bool plus_flag = false;
+	while (!lab_file->eof()) {
 		//if getline failed and it has not reached eof
-		if (lab_file.fail()) {
+		if (lab_file->fail()) {
 			std::cout << "reading the file failed, either the line is too long (<2048) or the construction of sentry failed" << std::endl;
+			return nullptr;
+		}
+		int i = 0;
+		for (; i < 2048 && line[i] != '#' && line[i] != '\n' && line[i] != '\0'; i++) {
+			if (line[i] == '+') plus_flag = true;
+		}
+		for (; i > 0 && !this->is_wall(line[i]); i--);
+		maxw = (i > maxw)? i:maxw;
+		if (plus_flag == true) {
+			this->fill_temp_tab(tab, line, i);
+			//not a commentary or useless line then increase width
+			if (i != 0) maxh+=1;
+		}
+		lab_file->getline(line, 2048);
+	}
+	lab_file->seekg(std::ios::beg);
+	
+	int nb_boxes = 0, nb_guards = 0, nb_treasures = 0, nb_posters = 0;
+	for (int i = 0; i < maxh; i++) {
+		for (int j = 0; j < maxw; j++) {
+			if (tab[i][j] == 'x') nb_boxes++;
+			else if (tab[i][j] == 'G') nb_guards++;
+			else if (tab[i][j] == 'T') nb_treasures++;	//pour vérifier la validité du layout
+			else if (tab[i][j] > 96 && tab[i][j] < 123) nb_posters++;
+		}
+	}
+	this->_height = maxh;
+	this->_width = maxw;
+	this->_nboxes = nb_boxes;
+	this->_nguards = nb_guards+1;	//nb guards + the hunter
+	this->_npicts = nb_posters;
+	return tab;
+}
+
+
+void Labyrinthe::fill_temp_tab (char **tab, char *line, int indice) {
+	static int j = 0;
+	if (indice != 0 && j < 258) {
+		tab[j] = (char*) malloc (258*sizeof(char));
+		
+		if (indice+1 >= 258) {
+			std::cout << "The maze is bigger than 257x257" << std::endl;
 			return;
 		}
-		
-		int i = 0;
-		for (; i < 2048 && line[i] != '#' && line[i] != '\n'; i++);
-		i--;
-		for (; i > 0 && line[i] == ' '; i--);
-		maxl = (i > maxl)? i:maxl;
-		
-		//not a commentary or useless line then increase width
-		if (i != 0) maxh+=1;
-		lab_file.getline(line, 2048);
+		tab[j][indice+1] = '\0';
+		for (; indice >= 0; indice--) {
+			tab[j][indice] = line[indice];
+		}
+		j += 1;
 	}
 	
-	self.set_width (maxl);
-	self.set_height (maxh);
 }
+
+
+void Labyrinthe::walls_create (char **tab) {
+	int limit = 258;
+	Wall *walls = (Wall *) malloc(limit*sizeof(Wall));
+	int nb_walls = 0;
+	int height = this->height();
+	//int width = this->width();
+	/*for (int i = 0; i < this->height(); i++) {
+		std::cout << tab[i] << std::endl;
+	}*/
+	for (int i = 0; i < height; i++) {
+		int j = 0;
+		for (; tab[i][j] != '\0'; j++) {
+			if (tab[i][j] == '+') {
+				int k = j+1;
+				for (; tab[i][k] != '\0' && Labyrinthe::is_wall(tab[i][k]); k++);
+				if (j < k-1) {
+					if (nb_walls >= limit) {
+						limit *= 2;
+						walls = (Wall *) realloc(walls, limit*sizeof(Wall));
+					}
+					//std::cout << "(h) nb_walls : " << nb_walls << std::endl;
+					walls[nb_walls] = { i, j, i, k-1, 0 };
+					nb_walls++;
+				}
+				j = k-1;
+				
+			}
+		}
+	}
+
+	for (int i = 0; i < height; i++) {
+		int j = 0;
+		for (; tab[i][j] != '\0'; j++) {
+			if (tab[i][j] == '+') {
+				int k = j+1;
+				for (; k < height && Labyrinthe::is_wall(tab[k][j]); k++);
+				if (i < k-1) {
+					if (nb_walls >= limit) {
+						limit *= 2;
+						walls = (Wall *) realloc(walls, limit*sizeof(Wall));
+					}
+					//std::cout << "(v) nb_walls : " << nb_walls << std::endl;
+					walls[nb_walls] = { i, j, k-1, j, 0 };
+					nb_walls++;
+				}
+			}
+		}
+	}
+	this->_walls = walls;
+	this->_nwall = nb_walls;
+}
+
+
+void Labyrinthe::boxes_create(char **tab) {
+	Box	*boxes = (Box *) malloc(this->_nboxes * sizeof(Box));
+	this->_guards = new Mover* [this->_nguards];
+	int height = this->height();
+	int width = this->width();
+	
+	int j,i = 0, nb_boxes = 0, nb_guards = 1;
+	for (; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			switch (tab[i][j]) {
+				case '+' :
+					tab[i][j] = '1';
+					break;
+				case '-' :
+					tab[i][j] = '1';
+					break;
+				case '|' :
+					tab[i][j] = '1';
+					break;
+				case 'x' :
+					boxes[nb_boxes]._x = i;
+					boxes[nb_boxes]._y = j;
+					boxes[nb_boxes]._ntex = 0;
+					tab[i][j] = '1'; //_data[i][j] = 
+					nb_boxes++;
+					break;
+				case 'C' :
+					this->_guards[0] = new Chasseur (this);
+					break;
+				case 'G' :
+					this->_guards[nb_guards] = new Gardien (this, "Lezard");
+					nb_guards++;
+					break;
+				case 'T':
+					this->_treasor._x = j;
+					this->_treasor._y = i;
+					tab[i][j] = '1';
+					break;
+				default : break;
+			}
+			tab[i][j] = '\0'; //_data[i][j] = 
+		}
+	}
+	for (int i = 0; i < nb_boxes; i++) {
+		std::cout << "{" << boxes[i]._x << ", " << boxes[i]._y << ", " << boxes[i]._ntex << "}" << std::endl;
+	}
+	
+	this->_boxes = boxes;
+}
+
+
+/*void Labyrinthe::poster_create(char**tab) {
+	Wall *posters = (Wall *) malloc(NB_BOXES * sizeof(Wall));
+	
+	int limit = NB_BOXES;
+	//annoying to take care of realloc and since it's not core to the game I'll just let it be for now
+	int height = this->height();
+	int width = this->width();
+	
+	int j,i = 0, nb_boxes = 0;
+	for (; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			else if (tab[i][j] > 96 && tab[i][j] < 123) {
+				if (nb_posters < limit) {
+					posters[nb_boxes] = (Wall *) malloc(sizeof(Wall));
+					posters[nb_boxes]->_x1 = i;
+					posters[nb_boxes]->_x2 = i;
+					posters[nb_boxes]->_y1 = j;
+					posters[nb_boxes]->_y2 = j;
+					posters[nb_boxes]->_ntex = 0;
+					nb_posters++;
+				}
+			}
+		}
+	}
+}*/
 
 
 Labyrinthe::Labyrinthe (char* filename)
 {
-	std::cout << filename << std::endl;
 	std::ifstream lab_file;
 	lab_file.open(filename, std::ifstream::in);
 	
@@ -65,28 +235,18 @@ Labyrinthe::Labyrinthe (char* filename)
 		return;
 	}
 	
-	self.find_measurements(lab_file, line);
+	char **tab = this->find_measurements(&lab_file, line);
+	std::cout << "walls_create" << std::endl;
+	walls_create (tab);
+	std::cout << "end walls_create" << std::endl;
+	boxes_create(tab);
 	
-	/*
-	//we malloc an array to contain the maze only
-	char **tab = (char**) malloc(maxh * sizeof(char*));
-	for (i = 0; i < maxh; i++) {
-		tab[i] = (char*) malloc(maxl * sizeof(char));
-	}*/
-	
-	for (int i = 0; i < 2048 && line[i] != '#' && line[i] != '\n'; i++) {
-		if (line[i] == '+') {
-			int j = i+1;
-			for (; j < 2048 && Labyrinthe::is_wall(line[j]); j++);
-			if (i < j-1) {
-				///walls[x] = { i, h1, j-1, h2, 0 },
-			}
-			
-			
-		}
+	this->_data = tab;
+
+	std::cout << "nb_walls = " << this->_nwall << std::endl;
+	for (int i = 0; i < this->_nwall; i++) {
+		std::cout << "{" << this->_walls[i]._x1 << ", " << this->_walls[i]._y1 << ", " << this->_walls[i]._x2 << ", " << this->_walls[i]._y2 << ", " << this->_walls[i]._ntex << "}" << std::endl;
 	}
-	
-	
 	
 	// les 4 murs.
 	static Wall walls [] = {
@@ -117,20 +277,20 @@ Labyrinthe::Labyrinthe (char* filename)
 /* FIN - NOUVEAU */
 
 	// juste un mur autour et les 3 caisses et le trésor dedans.
-	for (int i = 0; i < LAB_WIDTH; ++i)
+	/*for (int i = 0; i < LAB_WIDTH; ++i)
 		for (int j = 0; j < LAB_HEIGHT; ++j) {
 			if (i == 0 || i == LAB_WIDTH-1 || j == 0 || j == LAB_HEIGHT-1)
 				_data [i][j] = 1;
 			else
 				_data [i][j] = EMPTY;
-		}
+		}*/
 	// indiquer qu'on ne marche pas sur une caisse.
-	_data [caisses [0]._x][caisses [0]._y] = 1;
+	/*_data [caisses [0]._x][caisses [0]._y] = 1;
 	_data [caisses [1]._x][caisses [1]._y] = 1;
-	_data [caisses [2]._x][caisses [2]._y] = 1;
+	_data [caisses [2]._x][caisses [2]._y] = 1;*/
 	// les 4 murs.
-	_nwall = 4;
-	_walls = walls;
+	//_nwall = 4;
+	//_walls = walls;
 	// deux affiches.
 	_npicts = 2;
 	_picts = affiche;
@@ -139,8 +299,8 @@ Labyrinthe::Labyrinthe (char* filename)
 	sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
 	_picts [1]._ntex = wall_texture (tmp);
 	// 3 caisses.
-	_nboxes = 3;
-	_boxes = caisses;
+	//_nboxes = 3;
+	//_boxes = caisses;
 
 /* DEB - NOUVEAU */
 	// mettre une autre texture à la deuxième caisse.
@@ -161,17 +321,18 @@ Labyrinthe::Labyrinthe (char* filename)
 	_treasor._y = 10;
 	_data [_treasor._x][_treasor._y] = 1;	// indiquer qu'on ne marche pas sur le trésor.
 	// le chasseur et les 4 gardiens.
-	_nguards = 5;
-	_guards = new Mover* [_nguards];
-	_guards [0] = new Chasseur (this);
-	_guards [1] = new Gardien (this, "Lezard");
-	_guards [2] = new Gardien (this, "Blade"); _guards [2] -> _x = 90.; _guards [2] -> _y = 70.;
-	_guards [3] = new Gardien (this, "Serpent"); _guards [3] -> _x = 60.; _guards [3] -> _y = 10.;
-	_guards [4] = new Gardien (this, "Samourai"); _guards [4] -> _x = 130.; _guards [4] -> _y = 100.;
+	//_nguards = 5;
+	//_guards = new Mover* [_nguards];
+	//_guards [0] = new Chasseur (this);
+	//_guards [1] = new Gardien (this, "Lezard");
+	//_guards [2] = new Gardien (this, "Blade"); _guards [2] -> _x = 90.; _guards [2] -> _y = 70.;
+	//_guards [3] = new Gardien (this, "Serpent"); _guards [3] -> _x = 60.; _guards [3] -> _y = 10.;
+	//_guards [4] = new Gardien (this, "Samourai"); _guards [4] -> _x = 130.; _guards [4] -> _y = 100.;
 	// indiquer qu'on ne marche pas sur les gardiens.
-	_data [(int)(_guards [1] -> _x / scale)][(int)(_guards [1] -> _y / scale)] = 1;
-	_data [(int)(_guards [2] -> _x / scale)][(int)(_guards [2] -> _y / scale)] = 1;
-	_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
-	_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
+	//_data [(int)(_guards [1] -> _x / scale)][(int)(_guards [1] -> _y / scale)] = 1;
+	//_data [(int)(_guards [2] -> _x / scale)][(int)(_guards [2] -> _y / scale)] = 1;
+	//_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
+	//_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
+	std::cout << "coucou fin" << std::endl;
 }
 

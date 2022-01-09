@@ -1,6 +1,6 @@
 RM = rm -f
 EXE =
-OPT = -O3
+OPT = #-O3
 #
 #	Compilation on Windows for Windows
 #
@@ -42,7 +42,7 @@ FLTK_VERSION = fltk-1.4-linux
 FMOD = fmod/4.3
 CXX = g++
 LD = ld
-CXXFLAGS =		-Wall -I $(FMOD) -I /usr/include/freetype2 -I /usr/X11/include $(OPT)
+CXXFLAGS =		-Wall -I $(FMOD) -I /usr/include/freetype2 -I /usr/X11/include $(OPT) -g
 
 LINKFLTK_IMG =	$(FMOD)/libfmodex64.so -L$(FLTK_VERSION) -lfltk_jpeg \
 				-lfltk_png -lfltk_z -lfltk_gl -lfltk -lGLU -lGL \
