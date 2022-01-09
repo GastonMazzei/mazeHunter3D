@@ -1,0 +1,1 @@
+./labh -i labyrinthe.txt
