@@ -121,15 +121,17 @@ void Labyrinthe::walls_create (char **tab) {
 		int j = 0;
 		for (; tab[i][j] != '\0'; j++) {
 			if (tab[i][j] == '+') {
-				int k = j+1;
+				int k = i+1;
 				for (; k < height && Labyrinthe::is_wall(tab[k][j]); k++);
 				if (i < k-1) {
 					if (nb_walls >= limit) {
 						limit *= 2;
 						walls = (Wall *) realloc(walls, limit*sizeof(Wall));
+						std::cout << "walls need to be realloc'ed\n";
 					}
 					//std::cout << "(v) nb_walls : " << nb_walls << std::endl;
 					walls[nb_walls] = { i, j, k-1, j, 0 };
+					//std::cout<<"{"<<walls[nb_walls]._x1<<", "<<walls[nb_walls]._y1<<", "<<walls[nb_walls]._x2<<", "<<walls[nb_walls]._y2<<", "<<walls[nb_walls]._ntex<<"}"<<std::endl;
 					nb_walls++;
 				}
 			}
@@ -168,9 +170,14 @@ void Labyrinthe::boxes_create(char **tab) {
 					break;
 				case 'C' :
 					this->_guards[0] = new Chasseur (this);
+					this->_guards[0]->_x = j*10.;
+					this->_guards[0]->_y = i*10.;
+					std::cout << "chasseur : (" << this->_guards[0]->_x << "," << this->_guards[0]->_y << ")" << std::endl;
 					break;
 				case 'G' :
 					this->_guards[nb_guards] = new Gardien (this, "Lezard");
+					this->_guards[nb_guards]->_x = j*10.;
+					this->_guards[nb_guards]->_y = i*10.;
 					nb_guards++;
 					break;
 				case 'T':
@@ -178,14 +185,18 @@ void Labyrinthe::boxes_create(char **tab) {
 					this->_treasor._y = i;
 					tab[i][j] = '1';
 					break;
-				default : break;
+				default :
+					if (tab[i][j] < 97 || tab[i][j] > 122)
+						tab[i][j] = EMPTY;
+					break;
 			}
-			tab[i][j] = '\0'; //_data[i][j] = 
+			
+			//tab[i][j] = '\0'; //_data[i][j] = 
 		}
 	}
-	for (int i = 0; i < nb_boxes; i++) {
+	/*for (int i = 0; i < nb_boxes; i++) {
 		std::cout << "{" << boxes[i]._x << ", " << boxes[i]._y << ", " << boxes[i]._ntex << "}" << std::endl;
-	}
+	}*/
 	
 	this->_boxes = boxes;
 }
@@ -222,6 +233,8 @@ Labyrinthe::Labyrinthe (char* filename)
 {
 	std::ifstream lab_file;
 	lab_file.open(filename, std::ifstream::in);
+	//scale = 1;
+	std::cout << "scale = " << scale << std::endl;
 	
 	if(!lab_file.is_open()) {
 		// need to crash with error message
@@ -241,32 +254,36 @@ Labyrinthe::Labyrinthe (char* filename)
 	std::cout << "end walls_create" << std::endl;
 	boxes_create(tab);
 	
-	this->_data = tab;
-
-	std::cout << "nb_walls = " << this->_nwall << std::endl;
-	for (int i = 0; i < this->_nwall; i++) {
-		std::cout << "{" << this->_walls[i]._x1 << ", " << this->_walls[i]._y1 << ", " << this->_walls[i]._x2 << ", " << this->_walls[i]._y2 << ", " << this->_walls[i]._ntex << "}" << std::endl;
+	for (int i = 0; i < this->height(); i++) {
+		std::cout << tab[i] << std::endl;
 	}
 	
+	this->_data = tab;
+
+	//std::cout << "nb_walls = " << this->_nwall << std::endl;
+	/*for (int i = 0; i < this->_nwall; i++) {
+		std::cout << "{" << this->_walls[i]._x1 << ", " << this->_walls[i]._y1 << ", " << this->_walls[i]._x2 << ", " << this->_walls[i]._y2 << ", " << this->_walls[i]._ntex << "}" << std::endl;
+	}*/
+	
 	// les 4 murs.
-	static Wall walls [] = {
+	/*static Wall walls [] = {
 		{ 0, 0, LAB_WIDTH-10, 0, 0 },
 		{ LAB_WIDTH-1, 0, LAB_WIDTH-1, LAB_HEIGHT-1, 0 },
 		{ LAB_WIDTH-1, LAB_HEIGHT-1, 0, LAB_HEIGHT-1, 0 },
 		{ 0, LAB_HEIGHT-1, 0, 0, 0 },
-	};
+	};*/
 	// une affiche.
 	//  (attention: pour des raisons de rapport d'aspect, les affiches doivent faire 2 de long)
-	static Wall affiche [] = {
+	/*static Wall affiche [] = {
 		{ 4, 0, 6, 0, 0 },		// première affiche.
 		{ 8, 0, 10, 0, 0 },		// autre affiche.
-	};
+	};*/
 	// 3 caisses.
-	static Box	caisses [] = {
+	/*static Box	caisses [] = {
 		{ 70, 12, 0 },
 		{ 10, 5, 0 },
 		{ 65, 22, 0 },
-	};
+	};*/
 
 /* DEB - NOUVEAU */
 	// 2 marques au sol.
@@ -292,20 +309,20 @@ Labyrinthe::Labyrinthe (char* filename)
 	//_nwall = 4;
 	//_walls = walls;
 	// deux affiches.
-	_npicts = 2;
-	_picts = affiche;
+	_npicts = 0;
+	//_picts = affiche;
 	// la deuxième à une texture différente.
 	char	tmp [128];
-	sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
-	_picts [1]._ntex = wall_texture (tmp);
+	//sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
+	//_picts [1]._ntex = wall_texture (tmp);
 	// 3 caisses.
 	//_nboxes = 3;
 	//_boxes = caisses;
 
 /* DEB - NOUVEAU */
 	// mettre une autre texture à la deuxième caisse.
-	sprintf (tmp, "%s/%s", texture_dir, "boite.jpg");
-	caisses [1]._ntex = wall_texture (tmp);
+	//sprintf (tmp, "%s/%s", texture_dir, "boite.jpg");
+	//caisses [1]._ntex = wall_texture (tmp);
 
 	// mettre les marques au sol.
 	sprintf (tmp, "%s/%s", texture_dir, "p1.gif");
