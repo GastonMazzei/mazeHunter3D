@@ -9,16 +9,17 @@ bool Gardien::move (double dx, double dy)
 {
 	double X = (int) (_x + dx) / Environnement::scale;
 	double Y = (int) (_y + dy) / Environnement::scale;
-	if ((X<0) || (Y<0) || (X>=_l->height()) || (Y>=_l->width())){
+	//std::cout << Y << "," << X << " and " << _l->height() << "," << _l->width() << std::endl;
+	if ((X<0) || (Y<0) || (Y >= _l->width()) || (X >= _l->height())){
 		return false;
 	}
 	if (EMPTY == _l -> data (
 				// 1st argument
-				(int) (   X 
-				        ),
+				(int)  X 
+				       ,
 				 // 2nd argument
-			 	 (int)(    Y 
-				       )
+			 	 (int)  Y 
+				      
 				 ))
 	{
 		_x += dx;
@@ -44,10 +45,10 @@ void Gardien::update(void){
 	//printf("we checked if the gardien is visible: is it?\n");
 	if (isChasseurVisible){
 		angry = true;
-		//printf("Yes");
+		printf("IT WAS! :-)");
 	} else {
 		angry = false;
-		//printf("No");
+		printf("IT WAS NOT");
 	}
 	
 	// if we are already closest to Chasseur don't do anything :-)
@@ -113,13 +114,33 @@ void Gardien::move_randomly(){
 	}
 }
 
+int Gardien::check_availability(int ix_x, int ix_y){
+	if ((ix_x>=0) && (ix_y>=0) && (ix_x<_l->height()) && (ix_y<_l->width())){
+		if (EMPTY != _l->data(ix_x, ix_y)){
+			stayStill = false;
+			isChasseurVisible = false;
+			return 1;
+		}
+	} else {
+		//std::cout << "Incorrectly computed ray" << std::endl;
+		//std::cout << ix_x << " " << ix_y << std::endl;
+		//std::cout << "Bounds are " << _l->height() << " and " << _l->width() << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
 void Gardien::update_chasseur_visibility(void){
 	// TODO
 	// Apply some criteria: is the chasseur visible?
 	isChasseurVisible = true;
 	// This is the x-slope that goes from Gardien to Chasseur :-)
-	double DX = (_l->_guards[0]->_x - _x);
-	double DY = (_l->_guards[0]->_y - _y);
+	int xef = (int) (_x / Environnement::scale);
+	int yef = (int) (_y / Environnement::scale);
+	int xch = (int) (_l->_guards[0]->_x / Environnement::scale);
+	int ych = (int) (_l->_guards[0]->_y / Environnement::scale);
+	int DX = xch - xef;
+	int DY = ych - yef;
 	double sgx=1,sgy=1;
 	if (DX < 0) {
 		DX*=-1;
@@ -129,39 +150,47 @@ void Gardien::update_chasseur_visibility(void){
 		DY*=-1;
 		sgy = -1;
 	}
-	DX = DX / (double) Environnement::scale;
-	DY = DY / (double) Environnement::scale;
-	// Define the discretization required for the step
-	int L;
+	int L, type;
 	double dx,dy;
 	if (DX > DY){
-		L = (int) DX;
+		type = 0;
+		L = DX;
 		dx = 1.0;
-		dy = DY / L;
+		dy = (double) DY / L;
 	} else {
-		L = (int) DY;
+		type = 1;
+		L = DY;
 		dy = 1.0;
-		dx = DX / L;
+		dx = (double) DX / L;
 	}
-	double xef = _x / Environnement::scale;
-	double yef = _y / Environnement::scale;
-	int ix_x, ix_y;
+	//std::cout << "L,dx,dy,DX,DY = " << L << "," << dx << "," << dy << "," << DX << "," << DY << std::endl;
+	//std::cout << "Guard_(X,Y)=" << xch  << "," << ych << std::endl;
+	//std::cout << "gaRdien_(X,Y)=" << xef << "," << yef << std::endl;
+	int call_result = 0;
 	// Is the Chasseur visible?
-	for (int i=1; i<=L; i++) {
-		//ix_x = (int) (_x + i * dx) / Environnement::scale;
-		ix_x = (int) (xef + sgx * i * dx);
-		ix_y = (int) (yef + sgy * i * dy);
-		//ix_y = (int) (_y + i * dy) / Environnement::scale;
-		if ((ix_x>=0) && (ix_y>=0) && (ix_y<_l->height()) && (ix_x<_l->width())){
-			if (EMPTY != _l->data(ix_y, ix_x)){
-				stayStill = false;
-				isChasseurVisible = false;
-				return;
-			}
+	std::cout << "Printing the ray exploration: from (" <<xef<<","<<yef<<") to (" << xch << "," << ych << ")" << std::endl;
+	for (int i=1; i<L; i++) {
+		int ix_x1 = (int) ((double) xef + sgx * i * dx);
+		int ix_y1 = (int) ((double) yef + sgy * i * dy);
+		int ix_x2 = (int) ((double) xef + sgx * (i+1) * dx);
+		int ix_y2 = (int) ((double) yef + sgy * (i+1) * dy);
+		int ix_x3 = (int) ((double) xef + sgx * (i-1) * dx);
+		int ix_y3 = (int) ((double) yef + sgy * (i-1) * dy);
+		
+		std::cout << ix_x1 << "," << ix_y1 << std::endl;
+		//std::cout << _l->height() << "," << _l->width() << std::endl;
+		
+		// insert  here calls
+		call_result = 0;
+		call_result += check_availability(ix_x1, ix_y1);
+		if (type == 0){
+			call_result += check_availability(ix_x1, ix_y2);
+			call_result += check_availability(ix_x1, ix_y3);
 		} else {
-			//std::cout << "Incorrectly computed ray" << std::endl;
-			//std::cout << ix_x << " " << ix_y << std::endl;
-			//std::cout << "Bounds are " << _l->height() << " and " << _l->width() << std::endl;
+			call_result += check_availability(ix_x2, ix_y1);
+			call_result += check_availability(ix_x3, ix_y1);
+		}
+		if (call_result >= 2){
 			stayStill = false;
 			isChasseurVisible = false;
 			return;
@@ -169,9 +198,9 @@ void Gardien::update_chasseur_visibility(void){
 	}
 	// Gardiens do not have 'optimal' sight, so anything farther
 	// from a THRESHOLD L2 distance from them is not detected ;-)
-	double THRESHOLD = 1;
+	double THRESHOLD = 5;
 	if (isChasseurVisible){
-		if (std::sqrt(DX * DX + DY * DY) >= THRESHOLD){
+		if (std::sqrt(DX * DX + DY * DY) <= THRESHOLD){
 			stayStill = true;
 		} else {
 			stayStill = false;

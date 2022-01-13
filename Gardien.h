@@ -30,6 +30,7 @@ public:
 	void fire (int angle_vertical);
 	bool process_fireball (float dx, float dy);
 private:
+	int check_availability(int ix_x, int ix_y);
 	// ***CLASS ATTRIBUTES***
 	// binary movement behaviour: angry or not?
 	bool angry = false;
