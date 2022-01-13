@@ -35,6 +35,9 @@ void Gardien::update_gardien_accuracy(){
 
 void Gardien::update(void){
 
+	// Process the fireball?
+	//process_fireball();
+
 	// Update accuracy according to life
 	//printf("\n\nUpdating Gardien\n");
 	update_gardien_accuracy();
@@ -45,10 +48,18 @@ void Gardien::update(void){
 	//printf("we checked if the gardien is visible: is it?\n");
 	if (isChasseurVisible){
 		angry = true;
-		printf("IT WAS! :-)");
+		//printf("IT WAS! :-)");
 	} else {
 		angry = false;
-		printf("IT WAS NOT");
+		//printf("IT WAS NOT");
+	}
+	
+	// if we are angry, fire
+	if (angry) {
+		if (firing_counter % firing_frequency == 0){
+			fire(20);
+		}
+		firing_counter += 1;
 	}
 	
 	// if we are already closest to Chasseur don't do anything :-)
@@ -64,6 +75,7 @@ void Gardien::update(void){
 	} else {
 		move_randomly();
 	}
+
 }
 
 
@@ -168,7 +180,7 @@ void Gardien::update_chasseur_visibility(void){
 	//std::cout << "gaRdien_(X,Y)=" << xef << "," << yef << std::endl;
 	int call_result = 0;
 	// Is the Chasseur visible?
-	std::cout << "Printing the ray exploration: from (" <<xef<<","<<yef<<") to (" << xch << "," << ych << ")" << std::endl;
+	//std::cout << "Printing the ray exploration: from (" <<xef<<","<<yef<<") to (" << xch << "," << ych << ")" << std::endl;
 	for (int i=1; i<L; i++) {
 		int ix_x1 = (int) ((double) xef + sgx * i * dx);
 		int ix_y1 = (int) ((double) yef + sgy * i * dy);
@@ -177,7 +189,7 @@ void Gardien::update_chasseur_visibility(void){
 		int ix_x3 = (int) ((double) xef + sgx * (i-1) * dx);
 		int ix_y3 = (int) ((double) yef + sgy * (i-1) * dy);
 		
-		std::cout << ix_x1 << "," << ix_y1 << std::endl;
+		//std::cout << ix_x1 << "," << ix_y1 << std::endl;
 		//std::cout << _l->height() << "," << _l->width() << std::endl;
 		
 		// insert  here calls
@@ -209,26 +221,38 @@ void Gardien::update_chasseur_visibility(void){
 
 }
 
-
+double Gardien::get_lifesigns(){
+	return lifesigns;
+}
 
 // Actively modify
 bool Gardien::process_fireball (float dx, float dy)
 {
-	std::cout << "Ouch! I've received a Fireball and the code of my reaction is not written haha :-)" << std::endl;
+	//std::cout << "Ouch! I've received a Fireball and the code of my reaction is not written haha :-)" << std::endl;
 
-	// Decrease life according to the distance :-)
+	//  Decrease life according to the distance :-)
 	// CODE GOES  HERE ;;; TODO
 	
 	// If life terminates extinguish myself :-)	
 
 
-	bool TEST = false;
+	bool TEST = true;
 	if (TEST)
 	{
 		// calculer la distance entre le chasseur et le lieu de l'explosion.
+		float	x = (_x - _l->_guards[0]->_fb -> get_x ()) / Environnement::scale;
+		float	y = (_y - _l->_guards[0]->_fb -> get_y ()) / Environnement::scale;
 		//float	x = (_x - _fb -> get_x ()) / Environnement::scale;
 		//float	y = (_y - _fb -> get_y ()) / Environnement::scale;
-		//float	dist2 = x*x + y*y;
+
+		float	radius = std::sqrt(x * x + y * y) ;
+		if (radius == 0) radius = 1;
+		float factor = 1/radius;
+		if (factor < 0.01) factor = 0;
+	
+		this->lifesigns -= FIREBALL_DAMAGE * factor;
+		//std::cout << "Lifesigns have been reduced to: " << lifesigns << std::endl;
+
 		// on bouge que dans le vide!
 		//if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
 		//					 (int)((_fb -> get_y () + dy) / Environnement::scale)))
@@ -244,7 +268,7 @@ bool Gardien::process_fireball (float dx, float dy)
 		//_wall_hit -> play (1. - dist2/dmax2);
 		//message ("Booom...");
 	}
-	return false;
+	return true;
 }
 
 
@@ -256,14 +280,10 @@ bool Gardien::process_fireball (float dx, float dy)
 
 void Gardien::fire (int angle_vertical)
 {
-	bool TEST = false;
-	if (TEST)
-	{
 	//	message ("Woooshh...");
-	//	_hunter_fire -> play ();
-	//	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
-	//			 /* angles de vis�e */ angle_vertical, _angle);
-	}
+	//_hunter_fire -> play ();
+	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
+			 /* angles de vis�e */ angle_vertical, _angle);
 }
 
 

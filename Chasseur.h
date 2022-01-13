@@ -5,12 +5,20 @@
 #include "Mover.h"
 #include "Sound.h"
 
+
+
+#ifndef CHASSEUR_LIFE
+#define CHASSEUR_LIFE 500
+#endif
+
+
 class Labyrinthe;
 
 class Chasseur : public Mover {
 private:
 	// accepte ou non un deplacement.
 	bool move_aux (double dx, double dy);
+	double lifesigns = CHASSEUR_LIFE;
 public:
 	// les sons.
 	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.

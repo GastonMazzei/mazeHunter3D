@@ -1,4 +1,5 @@
 #include "Chasseur.h"
+#include "Gardien.h"
 #include  <iostream>
 /*
  *	Tente un deplacement.
@@ -66,6 +67,21 @@ void Chasseur::fire (int angle_vertical)
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
 				 /* angles de visée */ angle_vertical, _angle);
+	
+	//for (int *p = _l->_guards[1]; p <  + sizeof(ia)/sizeof(*ia); ++p) {
+    	//	printf("Char is: %d\n", *p);
+	//}
+	//
+	//
+	for (unsigned int i=1; i<sizeof(_l->_guards)/sizeof(_l->_guards[1]); i++){
+		_l->_guards[i]->process_fireball(0,0);
+		Gardien *p_temp = (Gardien*) _l->_guards[i];
+		std::cout << "Computing lifesigns" << std::endl;
+		if (p_temp->get_lifesigns() <= 0){
+			std::cout << "Deleting object :-)" << std::endl;
+			delete _l->_guards[i];
+		}
+	}
 }
 
 /*

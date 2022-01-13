@@ -15,6 +15,10 @@
 #define GARDIEN_ACCURACY 1.0
 #endif
 
+#ifndef FIREBALL_DAMAGE
+#define FIREBALL_DAMAGE 200
+#endif
+
 #include "Mover.h"
 
 class Labyrinthe;
@@ -29,6 +33,7 @@ public:
 	bool move (double dx, double dy);
 	void fire (int angle_vertical);
 	bool process_fireball (float dx, float dy);
+	double get_lifesigns();
 private:
 	int check_availability(int ix_x, int ix_y);
 	// ***CLASS ATTRIBUTES***
@@ -45,6 +50,8 @@ private:
 	double current_change_threshold = 0.97;
 	int x_moving_trend = 1;
 	int y_moving_trend = -1;
+	int firing_counter=0;
+	int firing_frequency=20;
 
 	// ***CLASS FUNCTIONS***
 	// Is the chasseur visible? update vars accordingly.
