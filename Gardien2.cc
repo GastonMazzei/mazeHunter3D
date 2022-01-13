@@ -1,4 +1,5 @@
 #include "Gardien.h"
+#include "Chasseur.h"
 #include  <iostream>
 
 /*
@@ -7,18 +8,13 @@
 
 bool Gardien::move (double dx, double dy)
 {
-	double X = _x + dx;
-	double Y = _y + dy;
-	if ((X<0) || (Y<0) || (X>=_l->height()) || (Y>=_l->width())){
-		return false;
-	}
 	if (EMPTY == _l -> data (
 				// 1st argument
-				(int) (   X /
+				(int) (   (_x + dx) /
 				       	   Environnement::scale
 				        ),
 				 // 2nd argument
-			 	 (int)(    X /
+			 	 (int)(    (_y + dy) /
 					   Environnement::scale
 				       )
 				 ))
@@ -121,11 +117,9 @@ void Gardien::update_chasseur_visibility(void){
 	for (int i=1; i<=L; i++) {
 		ix_x = (int) (_x + i * dx);
 		ix_y = (int) (_y + i * dy);
-		if ((ix_x>=0) && (ix_y>=0) && (ix_x<_l->height()) && (ix_y<_l->width())){
-			if (EMPTY != _l->data(ix_x, ix_y)){
-				isChasseurVisible = false;
-				return;
-			}
+		if (EMPTY != _l->data(ix_x, ix_y)){
+			isChasseurVisible = false;
+			return;
 		}
 	}
 	// DEBUGGING: while labyrinths are not correctly formed, we 
@@ -147,13 +141,28 @@ bool Gardien::process_fireball (float dx, float dy)
 
 	// Decrease life according to the distance :-)
 	// CODE GOES  HERE ;;; TODO
+	//
+	//
+	// Move.h -> Gardien, Chasseur
+	//
+	Chasseur * pG = (Chasseur*) _l->_guards[0];	
+	//double ACC = pG->accuracy; todo: write accuracy
+	double ACC = 1;
+	if (( ((double) (std::rand() % 1000)) / 1000.) <= ACC){
+		double distance_from_fireball = 1;
+		lifesigns -= GARDIEN_FIREBALL_DAMAGE * distance_from_fireball;  	
+	}
 	
 	// If life terminates extinguish myself :-)	
+	if (lifesigns <= 0){
+		std::cout << "Terminating guard 4" << std::endl;
+		delete(_l->_guards[4]);
+		// Terminate Myself Here
+		
+	}
 
-
-	bool TEST = false;
-	if (TEST)
-	{
+		// INFO TO BUILD THE DISTANCE FROM FIREBALL :-)
+	
 		// calculer la distance entre le chasseur et le lieu de l'explosion.
 		//float	x = (_x - _fb -> get_x ()) / Environnement::scale;
 		//float	y = (_y - _fb -> get_y ()) / Environnement::scale;
@@ -165,14 +174,7 @@ bool Gardien::process_fireball (float dx, float dy)
 		//	message ("Woooshh ..... %d", (int) dist2);
 		//	// il y a la place.
 		//	return true;
-		//}
-		// collision...
-		// calculer la distance maximum en ligne droite.
-		//float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
-		// faire exploser la boule de feu avec un bruit fonction de la distance.
-		//_wall_hit -> play (1. - dist2/dmax2);
-		//message ("Booom...");
-	}
+		//}	
 	return false;
 }
 
@@ -191,7 +193,7 @@ void Gardien::fire (int angle_vertical)
 	//	message ("Woooshh...");
 	//	_hunter_fire -> play ();
 	//	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
-	//			 /* angles de visï¿½e */ angle_vertical, _angle);
+	//			 /* angles de visée */ angle_vertical, _angle);
 	}
 }
 
