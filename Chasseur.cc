@@ -54,13 +54,30 @@ bool Chasseur::process_fireball (float dx, float dy)
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
 	message ("Booom...");
+	
+	
+	std::cout << "Process the lifesigns of your enemy" << std::endl;
+	for (unsigned int i=1; i<5; i++){
+		if ( !(killed.find(i) != killed.end()) ){
+			std::cout << "Processing guard  n " << i << std::endl;
+			_l->_guards[i]->process_fireball(0,0);
+			Gardien *p_temp = (Gardien*) _l->_guards[i];
+			std::cout << "Computing lifesigns: " << p_temp->get_lifesigns() << std::endl;
+			if (p_temp->get_lifesigns() <= 0){
+				std::cout << "Deleting object :-)" << std::endl;
+				delete _l->_guards[i];
+				killed.insert(i);
+			}
+		}
+	}
+	
 	return false;
 }
+
 
 /*
  *	Tire sur un ennemi.
  */
-
 void Chasseur::fire (int angle_vertical)
 {
 	message ("Woooshh...");
@@ -73,15 +90,6 @@ void Chasseur::fire (int angle_vertical)
 	//}
 	//
 	//
-	for (unsigned int i=1; i<sizeof(_l->_guards)/sizeof(_l->_guards[1]); i++){
-		_l->_guards[i]->process_fireball(0,0);
-		Gardien *p_temp = (Gardien*) _l->_guards[i];
-		std::cout << "Computing lifesigns" << std::endl;
-		if (p_temp->get_lifesigns() <= 0){
-			std::cout << "Deleting object :-)" << std::endl;
-			delete _l->_guards[i];
-		}
-	}
 }
 
 /*

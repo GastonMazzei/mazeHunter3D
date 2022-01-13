@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include "Mover.h"
 #include "Sound.h"
-
-
+#include  <set>
 
 #ifndef CHASSEUR_LIFE
 #define CHASSEUR_LIFE 500
@@ -19,6 +18,7 @@ private:
 	// accepte ou non un deplacement.
 	bool move_aux (double dx, double dy);
 	double lifesigns = CHASSEUR_LIFE;
+	std::set<int> killed;
 public:
 	// les sons.
 	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.
