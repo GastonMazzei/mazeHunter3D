@@ -39,8 +39,8 @@ private:
 	double lifesigns = GARDIEN_LIFE;
 	// a 0-1 number is the probability of the Gardien missing it's target
 	double accuracy =  GARDIEN_ACCURACY;
-	double default_change_threshold = 0.98;
-	double current_change_threshold = 0.98;
+	double default_change_threshold = 0.9;
+	double current_change_threshold = 0.9;
 	int x_moving_trend = 1;
 	int y_moving_trend = -1;
 

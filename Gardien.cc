@@ -7,19 +7,17 @@
 
 bool Gardien::move (double dx, double dy)
 {
-	double X = _x + dx;
-	double Y = _y + dy;
+	double X = (int) (_x + dx) / Environnement::scale;
+	double Y = (int) (_y + dy) / Environnement::scale;
 	if ((X<0) || (Y<0) || (X>=_l->height()) || (Y>=_l->width())){
 		return false;
 	}
 	if (EMPTY == _l -> data (
 				// 1st argument
-				(int) (   X /
-				       	   Environnement::scale
+				(int) (   X 
 				        ),
 				 // 2nd argument
-			 	 (int)(    X /
-					   Environnement::scale
+			 	 (int)(    Y 
 				       )
 				 ))
 	{
@@ -42,6 +40,7 @@ void Gardien::update(void){
 	// Check if the Hunter is visible, and
 	// change the anger status accordingly
 	update_chasseur_visibility();
+	isChasseurVisible = false;
 	if (isChasseurVisible){
 		angry = true;
 	} else {
@@ -97,7 +96,11 @@ void Gardien::move_randomly(){
 			y_moving_trend = 1;
 		}
 	}
-	move((double)  x_moving_trend, (double) y_moving_trend);	
+	bool response = move((double)  x_moving_trend, (double) y_moving_trend);	
+	if (!response){
+		x_moving_trend *= -1;
+		y_moving_trend *= -1;
+	}
 }
 
 void Gardien::update_chasseur_visibility(void){
@@ -128,10 +131,9 @@ void Gardien::update_chasseur_visibility(void){
 			}
 		}
 	}
-	// DEBUGGING: while labyrinths are not correctly formed, we 
-	// add the further restriction of guards and chasseurs being
-	// at an L2 distance smaller or equal than THRESHOLD to be visible
-	double THRESHOLD = 500;
+	// Gardiens do not have 'optimal' sight, so anything farther
+	// from a THRESHOLD L2 distance from them is not detected ;-)
+	double THRESHOLD = 50;
 	if (std::sqrt(DX * DX + DY * DY) >= THRESHOLD){
 		isChasseurVisible = false;
 	}
