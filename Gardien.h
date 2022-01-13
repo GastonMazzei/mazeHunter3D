@@ -35,12 +35,13 @@ private:
 	bool angry = false;
 	// is the chasseur visible?
 	bool isChasseurVisible = false;
+	bool stayStill = false;
 	// a real-valued variable indicates the lifesigns of Gardien
 	double lifesigns = GARDIEN_LIFE;
 	// a 0-1 number is the probability of the Gardien missing it's target
 	double accuracy =  GARDIEN_ACCURACY;
-	double default_change_threshold = 0.9;
-	double current_change_threshold = 0.9;
+	double default_change_threshold = 0.97;
+	double current_change_threshold = 0.97;
 	int x_moving_trend = 1;
 	int y_moving_trend = -1;
 

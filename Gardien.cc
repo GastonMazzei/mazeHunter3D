@@ -35,19 +35,29 @@ void Gardien::update_gardien_accuracy(){
 void Gardien::update(void){
 
 	// Update accuracy according to life
+	//printf("\n\nUpdating Gardien\n");
 	update_gardien_accuracy();
 
 	// Check if the Hunter is visible, and
 	// change the anger status accordingly
 	update_chasseur_visibility();
-	isChasseurVisible = false;
+	//printf("we checked if the gardien is visible: is it?\n");
 	if (isChasseurVisible){
 		angry = true;
+		//printf("Yes");
 	} else {
 		angry = false;
+		//printf("No");
 	}
-
+	
+	// if we are already closest to Chasseur don't do anything :-)
+	if (stayStill) {
+		//printf("\nWe are staying still");
+		return;
+	}
+	
 	// if we are angry, move towards the Chasseur
+	//printf("\n\nWe are moving");
 	if (angry){
 		move_towards_chasseur();
 	} else {
@@ -110,32 +120,62 @@ void Gardien::update_chasseur_visibility(void){
 	// This is the x-slope that goes from Gardien to Chasseur :-)
 	double DX = (_l->_guards[0]->_x - _x);
 	double DY = (_l->_guards[0]->_y - _y);
+	double sgx=1,sgy=1;
+	if (DX < 0) {
+		DX*=-1;
+		sgx = -1;
+	}
+	if (DY < 0) {
+		DY*=-1;
+		sgy = -1;
+	}
+	DX = DX / (double) Environnement::scale;
+	DY = DY / (double) Environnement::scale;
 	// Define the discretization required for the step
 	int L;
+	double dx,dy;
 	if (DX > DY){
 		L = (int) DX;
+		dx = 1.0;
+		dy = DY / L;
 	} else {
 		L = (int) DY;
+		dy = 1.0;
+		dx = DX / L;
 	}
-	double dx = DX / (double) L;
-	double dy = DY / (double) L;
+	double xef = _x / Environnement::scale;
+	double yef = _y / Environnement::scale;
 	int ix_x, ix_y;
 	// Is the Chasseur visible?
 	for (int i=1; i<=L; i++) {
-		ix_x = (int) (_x + i * dx);
-		ix_y = (int) (_y + i * dy);
-		if ((ix_x>=0) && (ix_y>=0) && (ix_x<_l->height()) && (ix_y<_l->width())){
-			if (EMPTY != _l->data(ix_x, ix_y)){
+		//ix_x = (int) (_x + i * dx) / Environnement::scale;
+		ix_x = (int) (xef + sgx * i * dx);
+		ix_y = (int) (yef + sgy * i * dy);
+		//ix_y = (int) (_y + i * dy) / Environnement::scale;
+		if ((ix_x>=0) && (ix_y>=0) && (ix_y<_l->height()) && (ix_x<_l->width())){
+			if (EMPTY != _l->data(ix_y, ix_x)){
+				stayStill = false;
 				isChasseurVisible = false;
 				return;
 			}
+		} else {
+			//std::cout << "Incorrectly computed ray" << std::endl;
+			//std::cout << ix_x << " " << ix_y << std::endl;
+			//std::cout << "Bounds are " << _l->height() << " and " << _l->width() << std::endl;
+			stayStill = false;
+			isChasseurVisible = false;
+			return;
 		}
 	}
 	// Gardiens do not have 'optimal' sight, so anything farther
 	// from a THRESHOLD L2 distance from them is not detected ;-)
-	double THRESHOLD = 50;
-	if (std::sqrt(DX * DX + DY * DY) >= THRESHOLD){
-		isChasseurVisible = false;
+	double THRESHOLD = 1;
+	if (isChasseurVisible){
+		if (std::sqrt(DX * DX + DY * DY) >= THRESHOLD){
+			stayStill = true;
+		} else {
+			stayStill = false;
+		}
 	}
 
 }
