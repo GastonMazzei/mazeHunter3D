@@ -26,6 +26,7 @@ private:
 	void print();
 
 public:
+	void destroyGardienByIndex(int i);	
 	Labyrinthe (char*);
 	//width and height now take a parameter because the teacher uses them in the reverse order as we do
 	//height = width and width = height and is not natural therefore we can keep using this->width()
