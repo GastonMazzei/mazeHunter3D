@@ -23,8 +23,8 @@ private:
 	void fill_temp_tab (char **tab, char *line, int indice);
 	void walls_create (char **tab);
 	void boxes_create(char **tab);
-
 public:
+	void destroyGardienByIndex(int i);	
 	Labyrinthe (char*);
 	int width () { return _width; };	// retourne la largeur du labyrinthe.
 	//void set_width (int w) { assert(w > 0); _width = w; };

@@ -1,6 +1,7 @@
 #include "Chasseur.h"
 #include "Gardien.h"
 #include  <iostream>
+#include "Labyrinthe.h"
 /*
  *	Tente un deplacement.
  */
@@ -56,17 +57,26 @@ bool Chasseur::process_fireball (float dx, float dy)
 	message ("Booom...");
 	
 	
-	std::cout << "Process the lifesigns of your enemy" << std::endl;
-	for (unsigned int i=1; i<5; i++){
-		if ( !(killed.find(i) != killed.end()) ){
+	std::cout << "Process the lifesigns of your enemy: there are " << _l->_nguards <<  std::endl;
+	for (int i=1; i<_l->_nguards; i++){
+		std::cout << "Checking if its dummy" << std::endl;
+		bool dummy = ((Gardien *) _l->_guards[i])->dummy;
+		std::cout << "Checking if it has already been killed" << std::endl;
+		if ( !(killed.find(i) != killed.end()) && !(dummy)){
 			std::cout << "Processing guard  n " << i << std::endl;
 			_l->_guards[i]->process_fireball(0,0);
 			Gardien *p_temp = (Gardien*) _l->_guards[i];
 			std::cout << "Computing lifesigns: " << p_temp->get_lifesigns() << std::endl;
 			if (p_temp->get_lifesigns() <= 0){
 				std::cout << "Deleting object :-)" << std::endl;
-				delete _l->_guards[i];
+				
+				// We don't just delete, we call the 
+				// Labyrinth's method for it ;-)
+				//delete _l->_guards[i];
+				std::cout << "About to destroy Gardien by index" << std::endl;
+				((Labyrinthe *) _l)->destroyGardienByIndex(i);
 				killed.insert(i);
+				std::cout << "Have finished destroying Gardien by index" << std::endl;
 			}
 		}
 	}

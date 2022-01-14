@@ -144,7 +144,7 @@ void Labyrinthe::walls_create (char **tab) {
 
 void Labyrinthe::boxes_create(char **tab) {
 	Box	*boxes = (Box *) malloc(this->_nboxes * sizeof(Box));
-	this->_guards = new Mover* [this->_nguards];
+	this->_guards = new Mover* [this->_nguards + 1];
 	int height = this->height();
 	int width = this->width();
 	
@@ -178,6 +178,7 @@ void Labyrinthe::boxes_create(char **tab) {
 					this->_guards[nb_guards] = new Gardien (this, "Lezard");
 					this->_guards[nb_guards]->_x = j*10.;
 					this->_guards[nb_guards]->_y = i*10.;
+					((Gardien *) this->_guards[nb_guards])-> dummy = false;
 					nb_guards++;
 					break;
 				case 'T':
@@ -194,10 +195,10 @@ void Labyrinthe::boxes_create(char **tab) {
 			//tab[i][j] = '\0'; //_data[i][j] = 
 		}
 	}
-	/*for (int i = 0; i < nb_boxes; i++) {
-		std::cout << "{" << boxes[i]._x << ", " << boxes[i]._y << ", " << boxes[i]._ntex << "}" << std::endl;
-	}*/
-	
+	// Define a dummy Gardien
+	this->_guards[nb_guards] = new Gardien (this, "Lezard");
+	std::cout << "There are " << nb_guards << " guards in the entire scene" << std::endl;
+
 	this->_boxes = boxes;
 }
 
@@ -227,6 +228,24 @@ void Labyrinthe::boxes_create(char **tab) {
 		}
 	}
 }*/
+
+void Labyrinthe::destroyGardienByIndex(int i){
+	// Store the pointer
+	Mover * local_ptr = this->_guards[i];
+
+	// Update the Gardien to the dummy one
+	this->_guards[i] = this->_guards[this->_nguards];
+
+	// Get it's position
+	int x = (int) this->_guards[i]->_x / Environnement::scale ;
+	int y = (int) this->_guards[i]->_y / Environnement::scale ;
+
+	// Destroy the Gardien
+	delete local_ptr;
+
+	// Free the space in the data
+	this->_data[x][y] = EMPTY;
+}
 
 
 Labyrinthe::Labyrinthe (char* filename)

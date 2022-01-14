@@ -28,7 +28,7 @@ public:
 	Gardien (Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
 	{std::srand(time(0));}
 	
-	bool exists = true;
+	bool dummy = true;
 	void update (void);
 	bool move (double dx, double dy);
 	void fire (int angle_vertical);

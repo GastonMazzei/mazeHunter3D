@@ -35,6 +35,10 @@ void Gardien::update_gardien_accuracy(){
 
 void Gardien::update(void){
 
+	if (dummy){
+		return;
+	}
+
 	// Process the fireball?
 	//process_fireball();
 
