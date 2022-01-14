@@ -19,6 +19,10 @@
 #define FIREBALL_DAMAGE 200
 #endif
 
+#ifndef MAX_RADIUS_FIREBALL
+#define MAX_RADIUS_FIREBALL 8
+#endif
+
 #include "Mover.h"
 
 class Labyrinthe;
@@ -41,6 +45,7 @@ private:
 	bool angry = false;
 	// is the chasseur visible?
 	bool isChasseurVisible = false;
+	double chasseurTheta = 0; // Angle to Chasseur :-)
 	bool stayStill = false;
 	// a real-valued variable indicates the lifesigns of Gardien
 	double lifesigns = GARDIEN_LIFE;
@@ -52,6 +57,8 @@ private:
 	int y_moving_trend = -1;
 	int firing_counter=0;
 	int firing_frequency=20;
+       	int walking_frequency=3;	
+	// they are not frequencies but periods in calls-to-update() units:-)
 
 	// ***CLASS FUNCTIONS***
 	// Is the chasseur visible? update vars accordingly.

@@ -39,9 +39,6 @@ void Gardien::update(void){
 		return;
 	}
 
-	// Process the fireball?
-	//process_fireball();
-
 	// Update accuracy according to life
 	//printf("\n\nUpdating Gardien\n");
 	update_gardien_accuracy();
@@ -69,12 +66,17 @@ void Gardien::update(void){
 	// if we are already closest to Chasseur don't do anything :-)
 	if (stayStill) {
 		//printf("\nWe are staying still");
+		_angle = 360 -  (int) chasseurTheta;
 		return;
 	}
 	
 	// if we are angry, move towards the Chasseur
 	//printf("\n\nWe are moving");
 	if (angry){
+		// TODO:
+		// With a certain probability based on the lifesigns
+		// move_randomly()
+		// else:
 		move_towards_chasseur();
 	} else {
 		move_randomly();
@@ -84,7 +86,10 @@ void Gardien::update(void){
 
 
 void Gardien::move_towards_chasseur(){
+	
 
+	if (firing_counter % walking_frequency != 0) return;
+	
 	// This is the x-slope that goes from Gardien to Chasseur :-)
 	double DX = (_l->_guards[0]->_x - _x);
 	double DY = (_l->_guards[0]->_y - _y);
@@ -104,6 +109,7 @@ void Gardien::move_towards_chasseur(){
 		double dy = DY / (double) L;
 		move(dx,dy);	
 	}
+	_angle = 360 - (int)  chasseurTheta;
 }
 
 void Gardien::move_randomly(){
@@ -206,12 +212,22 @@ void Gardien::update_chasseur_visibility(void){
 			call_result += check_availability(ix_x2, ix_y1);
 			call_result += check_availability(ix_x3, ix_y1);
 		}
-		if (call_result >= 2){
+		if (call_result >= 1){
 			stayStill = false;
 			isChasseurVisible = false;
 			return;
 		}
 	}
+
+	// Being here means that Chasseur is indeed visible.
+	// Let's compute its angle.
+	// theta = arctan(y/x)
+	chasseurTheta = 180 / 3.14   * std::atan((_l->_guards[0]->_x - _x)/(_l->_guards[0]->_y - _y)); 
+	if ((sgy==-1) && (sgy=sgx)){
+		chasseurTheta += 180;
+	}
+	std::cout << "Theta Chasseur is: " << chasseurTheta << std::endl;
+	
 	// Gardiens do not have 'optimal' sight, so anything farther
 	// from a THRESHOLD L2 distance from them is not detected ;-)
 	double THRESHOLD = 5;
@@ -239,7 +255,7 @@ bool Gardien::process_fireball (float dx, float dy)
 	
 	// If life terminates extinguish myself :-)	
 
-
+	if (dummy) return false;
 	bool TEST = true;
 	if (TEST)
 	{
@@ -250,9 +266,10 @@ bool Gardien::process_fireball (float dx, float dy)
 		//float	y = (_y - _fb -> get_y ()) / Environnement::scale;
 
 		float	radius = std::sqrt(x * x + y * y) ;
+		//std::cout << "Radius is " << radius << std::endl;
 		if (radius == 0) radius = 1;
 		float factor = 1/radius;
-		if (factor < 0.01) factor = 0;
+		if (radius > MAX_RADIUS_FIREBALL) factor = 0;
 	
 		this->lifesigns -= FIREBALL_DAMAGE * factor;
 		//std::cout << "Lifesigns have been reduced to: " << lifesigns << std::endl;
@@ -284,10 +301,11 @@ bool Gardien::process_fireball (float dx, float dy)
 
 void Gardien::fire (int angle_vertical)
 {
+	double ANGLE = chasseurTheta;
 	//	message ("Woooshh...");
 	//_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
-			 /* angles de vis�e */ angle_vertical, _angle);
+			 /* angles de vis�e */ angle_vertical, ANGLE);
 }
 
 

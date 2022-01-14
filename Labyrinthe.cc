@@ -230,21 +230,29 @@ void Labyrinthe::boxes_create(char **tab) {
 }*/
 
 void Labyrinthe::destroyGardienByIndex(int i){
+
 	// Store the pointer
 	Mover * local_ptr = this->_guards[i];
 
 	// Update the Gardien to the dummy one
-	this->_guards[i] = this->_guards[this->_nguards];
+	//this->_guards[i] = this->_guards[this->_nguards];
 
 	// Get it's position
 	int x = (int) this->_guards[i]->_x / Environnement::scale ;
 	int y = (int) this->_guards[i]->_y / Environnement::scale ;
 
-	// Destroy the Gardien
-	delete local_ptr;
+	// Update the Gardien
+	local_ptr->tomber();
+	((Gardien *) local_ptr)->dummy = true;
+	
+	// Delete the Gardien
+	//delete local_ptr;
 
 	// Free the space in the data
 	this->_data[x][y] = EMPTY;
+
+	// Rester au floor
+	local_ptr->rester_au_sol();
 }
 
 
