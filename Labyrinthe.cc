@@ -16,6 +16,19 @@ bool Labyrinthe::is_wall (char c) {
 	return (c != ' ' && c != '\n' && c != 'x' && c != 'T' && c != 'G' && c != 'C');
 }
 
+void Labyrinthe::print() {
+	std::cout << std::endl;
+	int height = this->height(), width = this->width();
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			if (this->_data[i][j] == EMPTY)
+				std::cout << " ";
+			else
+				std::cout << this->_data[i][j];
+		}
+		std::cout << std::endl;
+	}
+}
 
 char **Labyrinthe::find_measurements (std::ifstream *lab_file, char *line) {
 	//trying to find the max length and height of the maze
@@ -36,6 +49,8 @@ char **Labyrinthe::find_measurements (std::ifstream *lab_file, char *line) {
 			return nullptr;
 		}
 		int i = 0;
+		//we try to extract the layout from the rest of the file
+		//commentary inside the layout is currently not handled
 		for (; i < 2048 && line[i] != '#' && line[i] != '\n' && line[i] != '\0'; i++) {
 			if (line[i] == '+') plus_flag = true;
 		}
@@ -83,7 +98,6 @@ void Labyrinthe::fill_temp_tab (char **tab, char *line, int indice) {
 		}
 		j += 1;
 	}
-	
 }
 
 
@@ -92,11 +106,7 @@ void Labyrinthe::walls_create (char **tab) {
 	Wall *walls = (Wall *) malloc(limit*sizeof(Wall));
 	int nb_walls = 0;
 	int height = this->height();
-	//int width = this->width();
-	/*for (int i = 0; i < this->height(); i++) {
-		std::cout << tab[i] << std::endl;
-	}*/
-	for (int i = 0; i < height; i++) {
+	for (int i = 0; i < height; i++) {	//we find horizontal walls first
 		int j = 0;
 		for (; tab[i][j] != '\0'; j++) {
 			if (tab[i][j] == '+') {
@@ -107,17 +117,15 @@ void Labyrinthe::walls_create (char **tab) {
 						limit *= 2;
 						walls = (Wall *) realloc(walls, limit*sizeof(Wall));
 					}
-					//std::cout << "(h) nb_walls : " << nb_walls << std::endl;
 					walls[nb_walls] = { i, j, i, k-1, 0 };
 					nb_walls++;
 				}
 				j = k-1;
-				
 			}
 		}
 	}
 
-	for (int i = 0; i < height; i++) {
+	for (int i = 0; i < height; i++) {	//then vertical walls
 		int j = 0;
 		for (; tab[i][j] != '\0'; j++) {
 			if (tab[i][j] == '+') {
@@ -129,9 +137,7 @@ void Labyrinthe::walls_create (char **tab) {
 						walls = (Wall *) realloc(walls, limit*sizeof(Wall));
 						std::cout << "walls need to be realloc'ed\n";
 					}
-					//std::cout << "(v) nb_walls : " << nb_walls << std::endl;
 					walls[nb_walls] = { i, j, k-1, j, 0 };
-					//std::cout<<"{"<<walls[nb_walls]._x1<<", "<<walls[nb_walls]._y1<<", "<<walls[nb_walls]._x2<<", "<<walls[nb_walls]._y2<<", "<<walls[nb_walls]._ntex<<"}"<<std::endl;
 					nb_walls++;
 				}
 			}
@@ -142,7 +148,7 @@ void Labyrinthe::walls_create (char **tab) {
 }
 
 
-void Labyrinthe::boxes_create(char **tab) {
+void Labyrinthe::objects_create(char **tab) {
 	Box	*boxes = (Box *) malloc(this->_nboxes * sizeof(Box));
 	this->_guards = new Mover* [this->_nguards];
 	int height = this->height();
@@ -151,7 +157,7 @@ void Labyrinthe::boxes_create(char **tab) {
 	int j,i = 0, nb_boxes = 0, nb_guards = 1;
 	for (; i < height; i++) {
 		for (j = 0; j < width; j++) {
-			switch (tab[i][j]) {
+			switch (tab[i][j]) { //we try to find what type of char it is
 				case '+' :
 					tab[i][j] = '1';
 					break;
@@ -165,19 +171,19 @@ void Labyrinthe::boxes_create(char **tab) {
 					boxes[nb_boxes]._x = i;
 					boxes[nb_boxes]._y = j;
 					boxes[nb_boxes]._ntex = 0;
-					tab[i][j] = '1'; //_data[i][j] = 
+					tab[i][j] = '1';
 					nb_boxes++;
 					break;
 				case 'C' :
 					this->_guards[0] = new Chasseur (this);
-					this->_guards[0]->_x = j*10.;
-					this->_guards[0]->_y = i*10.;
-					std::cout << "chasseur : (" << this->_guards[0]->_x << "," << this->_guards[0]->_y << ")" << std::endl;
+					this->_guards[0]->_x = j*scale;
+					this->_guards[0]->_y = i*scale;
 					break;
 				case 'G' :
 					this->_guards[nb_guards] = new Gardien (this, "Lezard");
-					this->_guards[nb_guards]->_x = j*10.;
-					this->_guards[nb_guards]->_y = i*10.;
+					this->_guards[nb_guards]->_x = j*scale;
+					this->_guards[nb_guards]->_y = i*scale;
+					tab[i][j] = '1';
 					nb_guards++;
 					break;
 				case 'T':
@@ -190,14 +196,8 @@ void Labyrinthe::boxes_create(char **tab) {
 						tab[i][j] = EMPTY;
 					break;
 			}
-			
-			//tab[i][j] = '\0'; //_data[i][j] = 
 		}
 	}
-	/*for (int i = 0; i < nb_boxes; i++) {
-		std::cout << "{" << boxes[i]._x << ", " << boxes[i]._y << ", " << boxes[i]._ntex << "}" << std::endl;
-	}*/
-	
 	this->_boxes = boxes;
 }
 
@@ -233,8 +233,6 @@ Labyrinthe::Labyrinthe (char* filename)
 {
 	std::ifstream lab_file;
 	lab_file.open(filename, std::ifstream::in);
-	//scale = 1;
-	std::cout << "scale = " << scale << std::endl;
 	
 	if(!lab_file.is_open()) {
 		// need to crash with error message
@@ -252,37 +250,16 @@ Labyrinthe::Labyrinthe (char* filename)
 	std::cout << "walls_create" << std::endl;
 	walls_create (tab);
 	std::cout << "end walls_create" << std::endl;
-	boxes_create(tab);
-	
-	for (int i = 0; i < this->height(); i++) {
-		std::cout << tab[i] << std::endl;
-	}
+	objects_create (tab);
 	
 	this->_data = tab;
+	this->print();
 
-	//std::cout << "nb_walls = " << this->_nwall << std::endl;
-	/*for (int i = 0; i < this->_nwall; i++) {
-		std::cout << "{" << this->_walls[i]._x1 << ", " << this->_walls[i]._y1 << ", " << this->_walls[i]._x2 << ", " << this->_walls[i]._y2 << ", " << this->_walls[i]._ntex << "}" << std::endl;
-	}*/
-	
-	// les 4 murs.
-	/*static Wall walls [] = {
-		{ 0, 0, LAB_WIDTH-10, 0, 0 },
-		{ LAB_WIDTH-1, 0, LAB_WIDTH-1, LAB_HEIGHT-1, 0 },
-		{ LAB_WIDTH-1, LAB_HEIGHT-1, 0, LAB_HEIGHT-1, 0 },
-		{ 0, LAB_HEIGHT-1, 0, 0, 0 },
-	};*/
 	// une affiche.
 	//  (attention: pour des raisons de rapport d'aspect, les affiches doivent faire 2 de long)
 	/*static Wall affiche [] = {
 		{ 4, 0, 6, 0, 0 },		// première affiche.
 		{ 8, 0, 10, 0, 0 },		// autre affiche.
-	};*/
-	// 3 caisses.
-	/*static Box	caisses [] = {
-		{ 70, 12, 0 },
-		{ 10, 5, 0 },
-		{ 65, 22, 0 },
 	};*/
 
 /* DEB - NOUVEAU */
@@ -293,21 +270,6 @@ Labyrinthe::Labyrinthe (char* filename)
 	};
 /* FIN - NOUVEAU */
 
-	// juste un mur autour et les 3 caisses et le trésor dedans.
-	/*for (int i = 0; i < LAB_WIDTH; ++i)
-		for (int j = 0; j < LAB_HEIGHT; ++j) {
-			if (i == 0 || i == LAB_WIDTH-1 || j == 0 || j == LAB_HEIGHT-1)
-				_data [i][j] = 1;
-			else
-				_data [i][j] = EMPTY;
-		}*/
-	// indiquer qu'on ne marche pas sur une caisse.
-	/*_data [caisses [0]._x][caisses [0]._y] = 1;
-	_data [caisses [1]._x][caisses [1]._y] = 1;
-	_data [caisses [2]._x][caisses [2]._y] = 1;*/
-	// les 4 murs.
-	//_nwall = 4;
-	//_walls = walls;
 	// deux affiches.
 	_npicts = 0;
 	//_picts = affiche;
@@ -315,8 +277,6 @@ Labyrinthe::Labyrinthe (char* filename)
 	char	tmp [128];
 	//sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
 	//_picts [1]._ntex = wall_texture (tmp);
-	// 3 caisses.
-	//_nboxes = 3;
 	//_boxes = caisses;
 
 /* DEB - NOUVEAU */
@@ -333,23 +293,6 @@ Labyrinthe::Labyrinthe (char* filename)
 	_marks = marques;
 /* FIN - NOUVEAU */
 
-	// le trésor.
-	_treasor._x = 10;
-	_treasor._y = 10;
-	_data [_treasor._x][_treasor._y] = 1;	// indiquer qu'on ne marche pas sur le trésor.
-	// le chasseur et les 4 gardiens.
-	//_nguards = 5;
-	//_guards = new Mover* [_nguards];
-	//_guards [0] = new Chasseur (this);
-	//_guards [1] = new Gardien (this, "Lezard");
-	//_guards [2] = new Gardien (this, "Blade"); _guards [2] -> _x = 90.; _guards [2] -> _y = 70.;
-	//_guards [3] = new Gardien (this, "Serpent"); _guards [3] -> _x = 60.; _guards [3] -> _y = 10.;
-	//_guards [4] = new Gardien (this, "Samourai"); _guards [4] -> _x = 130.; _guards [4] -> _y = 100.;
-	// indiquer qu'on ne marche pas sur les gardiens.
-	//_data [(int)(_guards [1] -> _x / scale)][(int)(_guards [1] -> _y / scale)] = 1;
-	//_data [(int)(_guards [2] -> _x / scale)][(int)(_guards [2] -> _y / scale)] = 1;
-	//_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
-	//_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
 	std::cout << "coucou fin" << std::endl;
 }
 
