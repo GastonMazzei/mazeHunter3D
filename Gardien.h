@@ -16,7 +16,7 @@
 #endif
 
 #ifndef FIREBALL_DAMAGE
-#define FIREBALL_DAMAGE 200
+#define FIREBALL_DAMAGE 100
 #endif
 
 #ifndef MAX_RADIUS_FIREBALL
@@ -57,7 +57,7 @@ private:
 	int y_moving_trend = -1;
 	int firing_counter=0;
 	int firing_frequency=20;
-       	int walking_frequency=3;	
+       	int walking_frequency=20; // its a period actually 	
 	// they are not frequencies but periods in calls-to-update() units:-)
 
 	// ***CLASS FUNCTIONS***

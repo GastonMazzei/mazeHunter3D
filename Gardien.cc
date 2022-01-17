@@ -226,7 +226,8 @@ void Gardien::update_chasseur_visibility(void){
 	if ((sgy==-1) && (sgy=sgx)){
 		chasseurTheta += 180;
 	}
-	std::cout << "Theta Chasseur is: " << chasseurTheta << std::endl;
+	
+	
 	
 	// Gardiens do not have 'optimal' sight, so anything farther
 	// from a THRESHOLD L2 distance from them is not detected ;-)
@@ -269,8 +270,10 @@ bool Gardien::process_fireball (float dx, float dy)
 		//std::cout << "Radius is " << radius << std::endl;
 		if (radius == 0) radius = 1;
 		float factor = 1/radius;
+		std::cout << "radius is " << radius << std::endl;
 		if (radius > MAX_RADIUS_FIREBALL) factor = 0;
 	
+		factor = 1;
 		this->lifesigns -= FIREBALL_DAMAGE * factor;
 		//std::cout << "Lifesigns have been reduced to: " << lifesigns << std::endl;
 

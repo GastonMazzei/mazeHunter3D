@@ -38,24 +38,24 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 bool Chasseur::process_fireball (float dx, float dy)
 {
 	// calculer la distance entre le chasseur et le lieu de l'explosion.
+	//
 	float	x = (_x - _fb -> get_x ()) / Environnement::scale;
 	float	y = (_y - _fb -> get_y ()) / Environnement::scale;
-	float	dist2 = x*x + y*y;
-	// on bouge que dans le vide!
+	float	dist2 = x*x + y*y;	
 	if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
 							 (int)((_fb -> get_y () + dy) / Environnement::scale)))
 	{
 		message ("Woooshh ..... %d", (int) dist2);
-		// il y a la place.
 		return true;
 	}
-	// collision...
-	// calculer la distance maximum en ligne droite.
-	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
+	
+	// TODO
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
+	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	_wall_hit -> play (1. - dist2/dmax2);
 	message ("Booom...");
 	
+	return false;
 	
 	std::cout << "Process the lifesigns of your enemy: there are " << _l->_nguards <<  std::endl;
 	for (int i=1; i<_l->_nguards; i++){
