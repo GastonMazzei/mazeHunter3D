@@ -12,6 +12,26 @@
 #define	LAB_WIDTH	258
 #define	LAB_HEIGHT	258
 
+#ifndef CHASSEUR_LIFE
+#define CHASSEUR_LIFE 500
+#endif
+
+#ifndef GARDIEN_LIFE
+#define GARDIEN_LIFE 200
+#endif
+
+#ifndef GARDIEN_ACCURACY
+#define GARDIEN_ACCURACY 1.0
+#endif
+
+#ifndef FIREBALL_DAMAGE
+#define FIREBALL_DAMAGE 100
+#endif
+
+#ifndef MAX_RADIUS_FIREBALL
+#define MAX_RADIUS_FIREBALL 15
+#endif
+
 class Labyrinthe : public Environnement {
 private:
 	//char	_data [LAB_WIDTH][LAB_HEIGHT];

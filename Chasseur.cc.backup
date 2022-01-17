@@ -37,8 +37,6 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 
 bool Chasseur::process_fireball (float dx, float dy)
 {
-	if (hasLastBallExploded) return true;
-
 	// calculer la distance entre le chasseur et le lieu de l'explosion.
 	//
 	float	x = (_x - _fb -> get_x ()) / Environnement::scale;
@@ -51,13 +49,15 @@ bool Chasseur::process_fireball (float dx, float dy)
 		return true;
 	}
 	else {
-
+	}
+	
+	// TODO
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
-		float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
-		_wall_hit -> play (1. - dist2/dmax2);
-		message ("Booom...");
-		hasLastBallExploded = true;
-
+	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
+	_wall_hit -> play (1. - dist2/dmax2);
+	message ("Booom...");
+	
+	
 	std::cout << "Process the lifesigns of your enemy: there are " << _l->_nguards <<  std::endl;
 	for (int i=1; i<_l->_nguards; i++){
 		//std::cout << "Checking if its dummy" << std::endl;
@@ -65,7 +65,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 		//std::cout << "Checking if it has already been killed" << std::endl;
 		if ( !(killed.find(i) != killed.end()) && !(dummy)){
 			//std::cout << "Processing guard  n " << i << std::endl;
-			((Gardien *) _l->_guards[i])->process_fireball_external(0,0);
+			//_l->_guards[i]->process_fireball(0,0);
 			Gardien *p_temp = (Gardien*) _l->_guards[i];
 			//std::cout << "Computing lifesigns: " << p_temp->get_lifesigns() << std::endl;
 			if (p_temp->get_lifesigns() <= 0){
@@ -81,15 +81,8 @@ bool Chasseur::process_fireball (float dx, float dy)
 			}
 		}
 	}
-
-
-
-		return false;
-	}
 	
-	
-	
-	
+	return false;
 }
 
 
@@ -98,7 +91,6 @@ bool Chasseur::process_fireball (float dx, float dy)
  */
 void Chasseur::fire (int angle_vertical)
 {
-	hasLastBallExploded = false;
 	message ("Woooshh...");
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,

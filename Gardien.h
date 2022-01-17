@@ -1,4 +1,5 @@
 
+#include "Labyrinthe.h"
 #include <random>
 #include <ctime>
 #include <cmath>
@@ -7,22 +8,7 @@
 #define GARDIEN_H
 
 
-#ifndef GARDIEN_LIFE
-#define GARDIEN_LIFE 200
-#endif
-
-#ifndef GARDIEN_ACCURACY
-#define GARDIEN_ACCURACY 1.0
-#endif
-
-#ifndef FIREBALL_DAMAGE
-#define FIREBALL_DAMAGE 100
-#endif
-
-#ifndef MAX_RADIUS_FIREBALL
-#define MAX_RADIUS_FIREBALL 8
-#endif
-
+#include "Chasseur.h"
 #include "Mover.h"
 
 class Labyrinthe;
@@ -37,6 +23,7 @@ public:
 	bool move (double dx, double dy);
 	void fire (int angle_vertical);
 	bool process_fireball (float dx, float dy);
+	bool process_fireball_external (float dx, float dy);
 	double get_lifesigns();
 private:
 	int check_availability(int ix_x, int ix_y);
@@ -57,7 +44,7 @@ private:
 	int y_moving_trend = -1;
 	int firing_counter=0;
 	int firing_frequency=20;
-       	int walking_frequency=20; // its a period actually 	
+       	int walking_frequency=6; // its a period actually 	
 	// they are not frequencies but periods in calls-to-update() units:-)
 
 	// ***CLASS FUNCTIONS***

@@ -113,6 +113,9 @@ void Gardien::move_towards_chasseur(){
 }
 
 void Gardien::move_randomly(){
+	
+	if (firing_counter % walking_frequency != 0) return;
+	
 	double xrand = ((double) (std::rand() % 100000)) / 100000.;
 	double yrand = ((double) (std::rand() % 100000)) / 100000.;
 	if (xrand > current_change_threshold){
@@ -260,6 +263,51 @@ bool Gardien::process_fireball (float dx, float dy)
 	bool TEST = true;
 	if (TEST)
 	{
+		
+		// on bouge que dans le vide!
+		if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
+							 (int)((_fb -> get_y () + dy) / Environnement::scale)))
+		{
+			return true;
+		} else {
+		float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
+	
+		// calculer la distance entre le chasseur et le lieu de l'explosion.
+		float	x = (_fb->get_x() - _l->_guards[0]->_x) / Environnement::scale;
+		float	y = (_fb->get_y() - _l->_guards[0]->_y) / Environnement::scale;
+
+		float	radius = std::sqrt(x * x + y * y) ;
+		std::cout << "Radius is " << radius << std::endl;
+		if (radius == 0) radius = 1;
+		float factor = 1;//1/radius;
+		//std::cout << "radius is " << radius << std::endl;
+		if (radius > MAX_RADIUS_FIREBALL) factor = 0;
+		
+		((Chasseur *) _l->_guards[0])->lifesigns -= FIREBALL_DAMAGE * factor;
+		double lf = ((Chasseur *) _l->_guards[0])->lifesigns;
+		std::cout << "Chasseur lifesign is: " << lf << std::endl;	
+		if (lf < 0) exit(0);
+		return true;
+		}
+	}
+	return false;
+}
+
+
+// Actively modify
+bool Gardien::process_fireball_external (float dx, float dy)
+{
+	//std::cout << "Ouch! I've received a Fireball and the code of my reaction is not written haha :-)" << std::endl;
+
+	//  Decrease life according to the distance :-)
+	// CODE GOES  HERE ;;; TODO
+	
+	// If life terminates extinguish myself :-)	
+
+	if (dummy) return false;
+	bool TEST = true;
+	if (TEST)
+	{
 		// calculer la distance entre le chasseur et le lieu de l'explosion.
 		float	x = (_x - _l->_guards[0]->_fb -> get_x ()) / Environnement::scale;
 		float	y = (_y - _l->_guards[0]->_fb -> get_y ()) / Environnement::scale;
@@ -267,15 +315,14 @@ bool Gardien::process_fireball (float dx, float dy)
 		//float	y = (_y - _fb -> get_y ()) / Environnement::scale;
 
 		float	radius = std::sqrt(x * x + y * y) ;
-		//std::cout << "Radius is " << radius << std::endl;
+		std::cout << "Radius is " << radius << std::endl;
 		if (radius == 0) radius = 1;
-		float factor = 1/radius;
-		std::cout << "radius is " << radius << std::endl;
+		float factor = 1;//1/radius;
+		//std::cout << "radius is " << radius << std::endl;
 		if (radius > MAX_RADIUS_FIREBALL) factor = 0;
-	
-		factor = 1;
 		this->lifesigns -= FIREBALL_DAMAGE * factor;
-		//std::cout << "Lifesigns have been reduced to: " << lifesigns << std::endl;
+		
+		std::cout << "Lifesigns have been reduced to: " << lifesigns << std::endl;
 
 		// on bouge que dans le vide!
 		//if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
@@ -294,7 +341,6 @@ bool Gardien::process_fireball (float dx, float dy)
 	}
 	return true;
 }
-
 
 
 

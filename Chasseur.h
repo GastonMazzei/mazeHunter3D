@@ -5,11 +5,7 @@
 #include "Mover.h"
 #include "Sound.h"
 #include  <set>
-
-#ifndef CHASSEUR_LIFE
-#define CHASSEUR_LIFE 500
-#endif
-
+#include "Labyrinthe.h"
 
 class Labyrinthe;
 
@@ -17,9 +13,10 @@ class Chasseur : public Mover {
 private:
 	// accepte ou non un deplacement.
 	bool move_aux (double dx, double dy);
-	double lifesigns = CHASSEUR_LIFE;
 	std::set<int> killed;
+	bool hasLastBallExploded = false;
 public:
+	double lifesigns = CHASSEUR_LIFE;
 	// les sons.
 	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.
 	static Sound*	_hunter_hit;	// cri du chasseur touché.

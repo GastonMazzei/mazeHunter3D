@@ -1,0 +1,607 @@
+walls_create
+end walls_create
+There are 12 guards in the entire scene
+
+111111111111b1111111111111111111111111111111111111111111111111111111111111                  
+1  1                                                                  1  1111111111111111111
+1 C                                                                                        1
+1    11111111111111111111111111111111111111111   1111111111111111111111111111111111111111  1
+11   1                            111111111111   11111111111111                         1  1
+1    1      11111111111111111111  1                           1                         1  1
+1    1      1                  1  1                           1                         1  1
+1    1      1         1        1  1    1                      1                         1  1
+1    1      1                  1  1                           1                         1  1
+1    1 1    1                  1  1                           1                         1  1
+1    1      1                  1  1                           a                         1  1
+1    1      1                  1  11111111111111111111111111111                         1  1
+1    1      1                  1                              1                         1  1
+1    11111111                  1           1111               1                         1  1
+1  1                           1           1  11111111111111  1                         1  1
+1                    1         1           1  11111111111111  1                         1  1
+1                              1           1                  1                         1  1
+1  111111111a1111111111111111111           1                  1                         1  1
+1  1                                       1                  1                         1  1
+1  1           11                          11111111111111111  1                         1  1
+1  1           11                                          1  1                         1  1
+1  1           11          1                               1  1                         1  1
+1  1           11                    1111111111111111      1  1                         1  1
+1  1                                 1              1      1  1                         1  1
+1  1    1      11                    1              1   1  1  1                         1  1
+1  1           11                    1              1111a111  1                         1  1
+1  1           a1                    1                        1                         1  1
+1  1           11                    1                        1                         1  1
+1  1111111111  11  11111111111111111111111111111111111111111  111111111111111111        1  1
+1  1111111111  11  11111111111111111111111111111111111111111                   1        1  1
+1                                                                              1        1  1
+1                                                                              1        1  1
+1111111111111111111111111111   111111a1111111                 111111           1        1  1
+1                         11   1            1        1        1    1      1    1        1  1
+1                         11   1            111a111a11111111  1    1           1        1  1
+a      1                  11   1    1       1111111a11111111  1    1111111111  1        1  1
+1                              1                              1             1  1        1  1
+1                              1                              1             1  1        1  1
+1                         11   11111111111111111111111111111  1             1  1        1  1
+1                         11   11111a11111111111111111111111  1111111a11a1111  1        1  1
+1                         11                                                   1111111111  1
+1        1                11                                                               1
+111111111111111a11111111111111111111a1a11111111111111111111111111111111111111111111111111  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                                        1  1
+                                                                              11111111111  1
+                                                                              1            1
+                                                                              1            1
+                                                                                  1        1
+                                                                              1            1
+                                                                              1         1  1
+                                                                              11111111111111
+coucou fin
+Radius is 23.473
+Lifesigns have been reduced to: 200
+Radius is 23.473
+Lifesigns have been reduced to: 200
+Radius is 23.473
+Lifesigns have been reduced to: 200
+Radius is 23.473
+Lifesigns have been reduced to: 200
+Radius is 23.473
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 15.6803
+Lifesigns have been reduced to: 200
+Radius is 2.30697
+Lifesigns have been reduced to: 199
+Radius is 1.37975
+Lifesigns have been reduced to: 198
+Radius is 0.696619
+Lifesigns have been reduced to: 197
+Radius is 1.03289
+Lifesigns have been reduced to: 196
+Radius is 1.91009
+Lifesigns have been reduced to: 195
+Not entering the loopProcess the lifesigns of your enemy: there are 12
+Radius is 1.91009
+Lifesigns have been reduced to: 194
+Radius is 1.91009
+Lifesigns have been reduced to: 193
+Radius is 1.91009
+Lifesigns have been reduced to: 192
+Radius is 1.91009
+Lifesigns have been reduced to: 191
+Radius is 1.91009
+Lifesigns have been reduced to: 190
+Radius is 1.91009
+Lifesigns have been reduced to: 189
+Radius is 1.91009
+Lifesigns have been reduced to: 188
+Radius is 1.91009
+Lifesigns have been reduced to: 187
+Radius is 1.91009
+Lifesigns have been reduced to: 186
+Radius is 1.91009
+Lifesigns have been reduced to: 185
+Radius is 1.91009
+Lifesigns have been reduced to: 184
+Radius is 1.91009
+Lifesigns have been reduced to: 183
+Radius is 1.91009
+Lifesigns have been reduced to: 182
+Radius is 1.91009
+Lifesigns have been reduced to: 181
+Radius is 1.91009
+Lifesigns have been reduced to: 180
+Radius is 1.91009
+Lifesigns have been reduced to: 179
+Radius is 1.91009
+Lifesigns have been reduced to: 178
+Radius is 1.91009
+Lifesigns have been reduced to: 177
+Radius is 1.91009
+Lifesigns have been reduced to: 176
+Radius is 1.91009
+Lifesigns have been reduced to: 175
+Radius is 1.91009
+Lifesigns have been reduced to: 174
+Radius is 1.91009
+Lifesigns have been reduced to: 173
+Radius is 1.91009
+Lifesigns have been reduced to: 172
+Radius is 1.91009
+Lifesigns have been reduced to: 171
+Radius is 1.91009
+Lifesigns have been reduced to: 170
+Radius is 1.91009
+Lifesigns have been reduced to: 169
+Radius is 1.91009
+Lifesigns have been reduced to: 168
+Radius is 1.91009
+Lifesigns have been reduced to: 167
+Radius is 1.91009
+Lifesigns have been reduced to: 166
+Radius is 1.91009
+Lifesigns have been reduced to: 165
+Radius is 1.91009
+Lifesigns have been reduced to: 164
+Radius is 1.91009
+Lifesigns have been reduced to: 163
+Radius is 1.91009
+Lifesigns have been reduced to: 162
+Radius is 1.91009
+Lifesigns have been reduced to: 161
+Radius is 1.91009
+Lifesigns have been reduced to: 160
+Radius is 1.91009
+Lifesigns have been reduced to: 159
+Radius is 1.91009
+Lifesigns have been reduced to: 158
+Radius is 1.91009
+Lifesigns have been reduced to: 157
+Radius is 1.91009
+Lifesigns have been reduced to: 156
+Radius is 1.91009
+Lifesigns have been reduced to: 155
+Radius is 1.91009
+Lifesigns have been reduced to: 154
+Radius is 1.91009
+Lifesigns have been reduced to: 153
+Radius is 1.91009
+Lifesigns have been reduced to: 152
+Radius is 2.30697
+Lifesigns have been reduced to: 151
+Radius is 1.37975
+Lifesigns have been reduced to: 150
+Radius is 0.696619
+Lifesigns have been reduced to: 149
+Radius is 1.03289
+Lifesigns have been reduced to: 148
+Radius is 1.91009
+Lifesigns have been reduced to: 147
+Not entering the loopProcess the lifesigns of your enemy: there are 12
+Radius is 1.91009
+Lifesigns have been reduced to: 146
+Radius is 1.91009
+Lifesigns have been reduced to: 145
+Radius is 1.91009
+Lifesigns have been reduced to: 144
+Radius is 1.91009
+Lifesigns have been reduced to: 143
+Radius is 1.91009
+Lifesigns have been reduced to: 142
+Radius is 1.91009
+Lifesigns have been reduced to: 141
+Radius is 1.91009
+Lifesigns have been reduced to: 140
+Radius is 1.91009
+Lifesigns have been reduced to: 139
+Radius is 1.91009
+Lifesigns have been reduced to: 138
+Radius is 1.91009
+Lifesigns have been reduced to: 137
+Radius is 1.91009
+Lifesigns have been reduced to: 136
+Radius is 1.91009
+Lifesigns have been reduced to: 135
+Radius is 1.91009
+Lifesigns have been reduced to: 134
+Radius is 1.91009
+Lifesigns have been reduced to: 133
+Radius is 1.91009
+Lifesigns have been reduced to: 132
+Radius is 1.91009
+Lifesigns have been reduced to: 131
+Radius is 1.91009
+Lifesigns have been reduced to: 130
+Radius is 1.91009
+Lifesigns have been reduced to: 129
+Radius is 1.91009
+Lifesigns have been reduced to: 128
+Radius is 1.91009
+Lifesigns have been reduced to: 127
+Radius is 1.91009
+Lifesigns have been reduced to: 126
+Radius is 1.91009
+Lifesigns have been reduced to: 125
+Radius is 2.30697
+Lifesigns have been reduced to: 124
+Radius is 1.37975
+Lifesigns have been reduced to: 123
+Radius is 0.696619
+Lifesigns have been reduced to: 122
+Radius is 1.03289
+Lifesigns have been reduced to: 121
+Radius is 1.91009
+Lifesigns have been reduced to: 120
+Not entering the loopProcess the lifesigns of your enemy: there are 12
+Radius is 1.91009
+Lifesigns have been reduced to: 119
+Radius is 1.91009
+Lifesigns have been reduced to: 118
+Radius is 1.91009
+Lifesigns have been reduced to: 117
+Radius is 1.91009
+Lifesigns have been reduced to: 116
+Radius is 1.91009
+Lifesigns have been reduced to: 115
+Radius is 1.91009
+Lifesigns have been reduced to: 114
+Radius is 1.91009
+Lifesigns have been reduced to: 113
+Radius is 1.91009
+Lifesigns have been reduced to: 112
+Radius is 1.91009
+Lifesigns have been reduced to: 111
+Radius is 1.91009
+Lifesigns have been reduced to: 110
+Radius is 1.91009
+Lifesigns have been reduced to: 109
+Radius is 1.91009
+Lifesigns have been reduced to: 108
+Radius is 1.91009
+Lifesigns have been reduced to: 107
+Radius is 1.91009
+Lifesigns have been reduced to: 106
+Radius is 1.91009
+Lifesigns have been reduced to: 105
+Radius is 1.91009
+Lifesigns have been reduced to: 104
+Radius is 1.91009
+Lifesigns have been reduced to: 103
+Radius is 1.91009
+Lifesigns have been reduced to: 102
+Radius is 1.91009
+Lifesigns have been reduced to: 101
+Radius is 1.91009
+Lifesigns have been reduced to: 100
+Radius is 1.91009
+Lifesigns have been reduced to: 99
+Radius is 1.91009
+Lifesigns have been reduced to: 98
+Radius is 1.91009
+Lifesigns have been reduced to: 97
+Radius is 1.91009
+Lifesigns have been reduced to: 96
+Radius is 2.30697
+Lifesigns have been reduced to: 95
+Radius is 1.37975
+Lifesigns have been reduced to: 94
+Radius is 0.696619
+Lifesigns have been reduced to: 93
+Radius is 1.03289
+Lifesigns have been reduced to: 92
+Radius is 1.91009
+Lifesigns have been reduced to: 91
+Not entering the loopProcess the lifesigns of your enemy: there are 12
+Radius is 1.91009
+Lifesigns have been reduced to: 90
+Radius is 1.91009
+Lifesigns have been reduced to: 89
+Radius is 1.91009
+Lifesigns have been reduced to: 88
+Radius is 1.91009
+Lifesigns have been reduced to: 87
+Radius is 1.91009
+Lifesigns have been reduced to: 86
+Radius is 1.91009
+Lifesigns have been reduced to: 85
+Radius is 1.91009
+Lifesigns have been reduced to: 84
+Radius is 1.91009
+Lifesigns have been reduced to: 83
+Radius is 1.91009
+Lifesigns have been reduced to: 82
+Radius is 1.91009
+Lifesigns have been reduced to: 81
+Radius is 1.91009
+Lifesigns have been reduced to: 80
+Radius is 1.91009
+Lifesigns have been reduced to: 79
