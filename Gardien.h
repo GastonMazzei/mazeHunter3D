@@ -27,6 +27,7 @@ public:
 	double get_lifesigns();
 private:
 	int check_availability(int ix_x, int ix_y);
+	double chasseur_distance = 0;
 	// ***CLASS ATTRIBUTES***
 	// binary movement behaviour: angry or not?
 	bool angry = false;
@@ -42,9 +43,9 @@ private:
 	double current_change_threshold = 0.97;
 	int x_moving_trend = 1;
 	int y_moving_trend = -1;
-	int firing_counter=0;
-	int firing_frequency=20;
-       	int walking_frequency=6; // its a period actually 	
+	int _counter=0;
+	int firing_frequency=50;
+       	int walking_frequency=3; // its a period actually 	
 	// they are not frequencies but periods in calls-to-update() units:-)
 
 	// ***CLASS FUNCTIONS***
@@ -52,6 +53,7 @@ private:
 	void update_chasseur_visibility(void);
 	// The accuracy depends on the gardien's lifesigns.
 	void update_gardien_accuracy(void);
+	void update_gardien_firingFrequency(void);
 	// Wrappers for diffeVrent movements
 	void move_towards_chasseur();
 	void move_randomly();

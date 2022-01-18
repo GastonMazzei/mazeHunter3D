@@ -15,7 +15,16 @@ private:
 	bool move_aux (double dx, double dy);
 	std::set<int> killed;
 	bool hasLastBallExploded = false;
+	int _counter=0;
+	bool blinking_message=false;
+	std::string current_message="Hello";
+	std::string next_message = "Hi";
+	int blinking_period = 60;
+	int last_blinker = 250;
+	bool gardienInfo = false;
+	double lowest_lifesigns = GARDIEN_LIFE;
 public:
+	void add_info2message(std::string information,double lifesigns);
 	double lifesigns = CHASSEUR_LIFE;
 	// les sons.
 	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.

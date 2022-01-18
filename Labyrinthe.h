@@ -13,11 +13,11 @@
 #define	LAB_HEIGHT	258
 
 #ifndef CHASSEUR_LIFE
-#define CHASSEUR_LIFE 500
+#define CHASSEUR_LIFE 2000
 #endif
 
 #ifndef GARDIEN_LIFE
-#define GARDIEN_LIFE 200
+#define GARDIEN_LIFE 20
 #endif
 
 #ifndef GARDIEN_ACCURACY
@@ -25,11 +25,19 @@
 #endif
 
 #ifndef FIREBALL_DAMAGE
-#define FIREBALL_DAMAGE 100
+#define FIREBALL_DAMAGE 5
+#endif
+
+#ifndef MAX_ALLOWED_FIRING_FREQUENCY
+#define MAX_ALLOWED_FIRING_FREQUENCY 130
 #endif
 
 #ifndef MAX_RADIUS_FIREBALL
-#define MAX_RADIUS_FIREBALL 15
+#define MAX_RADIUS_FIREBALL 6
+#endif
+
+#ifndef BOUNTY_TAG
+#define BOUNTY_TAG 'T'
 #endif
 
 class Labyrinthe : public Environnement {

@@ -176,21 +176,21 @@ void Labyrinthe::objects_create(char **tab) {
 					break;
 				case 'C' :
 					this->_guards[0] = new Chasseur (this);
-					this->_guards[0]->_x = j*scale;
-					this->_guards[0]->_y = i*scale;
+					this->_guards[0]->_x = i*scale;
+					this->_guards[0]->_y = j*scale;
 					break;
 				case 'G' :
 					this->_guards[nb_guards] = new Gardien (this, "Lezard");
-					this->_guards[nb_guards]->_x = j*scale;
-					this->_guards[nb_guards]->_y = i*scale;
+					this->_guards[nb_guards]->_x = i*scale;
+					this->_guards[nb_guards]->_y = j*scale;
 					tab[i][j] = '1';
 					((Gardien *) this->_guards[nb_guards])-> dummy = false;
 					nb_guards++;
 					break;
 				case 'T':
-					this->_treasor._x = j;
-					this->_treasor._y = i;
-					tab[i][j] = '1';
+					this->_treasor._x = i;
+					this->_treasor._y = j;
+					tab[i][j] = BOUNTY_TAG;
 					break;
 				default :
 					if (tab[i][j] < 97 || tab[i][j] > 122)

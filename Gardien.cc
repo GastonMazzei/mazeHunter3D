@@ -29,8 +29,18 @@ bool Gardien::move (double dx, double dy)
 	return false;
 }
 
-void Gardien::update_gardien_accuracy(){
-	accuracy = accuracy * 0.99999;
+void Gardien::update_gardien_accuracy(){	
+	accuracy = (lifesigns / GARDIEN_LIFE) * GARDIEN_ACCURACY;
+}
+
+void Gardien::update_gardien_firingFrequency(){	
+        double factor =  (double) ((double) lifesigns / GARDIEN_LIFE);
+        if (factor <= 1e-2) return;
+        firing_frequency = (int) ((double) firing_frequency / factor);
+        if (firing_frequency >=  MAX_ALLOWED_FIRING_FREQUENCY ) {
+                firing_frequency = MAX_ALLOWED_FIRING_FREQUENCY;
+        }
+	std::cout << "Firing freq is now " << firing_frequency << std::endl;
 }
 
 void Gardien::update(void){
@@ -38,11 +48,13 @@ void Gardien::update(void){
 	if (dummy){
 		return;
 	}
+		
+	_counter += 1;
 
 	// Update accuracy according to life
 	//printf("\n\nUpdating Gardien\n");
 	update_gardien_accuracy();
-
+	update_gardien_firingFrequency();
 	// Check if the Hunter is visible, and
 	// change the anger status accordingly
 	update_chasseur_visibility();
@@ -57,15 +69,13 @@ void Gardien::update(void){
 	
 	// if we are angry, fire
 	if (angry) {
-		if (firing_counter % firing_frequency == 0){
-			fire(20);
+		if (_counter % firing_frequency == 0){
+			fire(180);
 		}
-		firing_counter += 1;
 	}
 	
 	// if we are already closest to Chasseur don't do anything :-)
 	if (stayStill) {
-		//printf("\nWe are staying still");
 		_angle = 360 -  (int) chasseurTheta;
 		return;
 	}
@@ -88,7 +98,7 @@ void Gardien::update(void){
 void Gardien::move_towards_chasseur(){
 	
 
-	if (firing_counter % walking_frequency != 0) return;
+	if (_counter % walking_frequency != 0) return;
 	
 	// This is the x-slope that goes from Gardien to Chasseur :-)
 	double DX = (_l->_guards[0]->_x - _x);
@@ -114,7 +124,7 @@ void Gardien::move_towards_chasseur(){
 
 void Gardien::move_randomly(){
 	
-	if (firing_counter % walking_frequency != 0) return;
+	if (_counter % walking_frequency != 0) return;
 	
 	double xrand = ((double) (std::rand() % 100000)) / 100000.;
 	double yrand = ((double) (std::rand() % 100000)) / 100000.;
@@ -156,9 +166,10 @@ int Gardien::check_availability(int ix_x, int ix_y){
 }
 
 void Gardien::update_chasseur_visibility(void){
-	// TODO
-	// Apply some criteria: is the chasseur visible?
+	
+	// The script tries to negate that the Chasseur is visible
 	isChasseurVisible = true;
+	
 	// This is the x-slope that goes from Gardien to Chasseur :-)
 	int xef = (int) (_x / Environnement::scale);
 	int yef = (int) (_y / Environnement::scale);
@@ -188,12 +199,8 @@ void Gardien::update_chasseur_visibility(void){
 		dy = 1.0;
 		dx = (double) DX / L;
 	}
-	//std::cout << "L,dx,dy,DX,DY = " << L << "," << dx << "," << dy << "," << DX << "," << DY << std::endl;
-	//std::cout << "Guard_(X,Y)=" << xch  << "," << ych << std::endl;
-	//std::cout << "gaRdien_(X,Y)=" << xef << "," << yef << std::endl;
+	
 	int call_result = 0;
-	// Is the Chasseur visible?
-	//std::cout << "Printing the ray exploration: from (" <<xef<<","<<yef<<") to (" << xch << "," << ych << ")" << std::endl;
 	for (int i=1; i<L; i++) {
 		int ix_x1 = (int) ((double) xef + sgx * i * dx);
 		int ix_y1 = (int) ((double) yef + sgy * i * dy);
@@ -202,10 +209,6 @@ void Gardien::update_chasseur_visibility(void){
 		int ix_x3 = (int) ((double) xef + sgx * (i-1) * dx);
 		int ix_y3 = (int) ((double) yef + sgy * (i-1) * dy);
 		
-		//std::cout << ix_x1 << "," << ix_y1 << std::endl;
-		//std::cout << _l->height() << "," << _l->width() << std::endl;
-		
-		// insert  here calls
 		call_result = 0;
 		call_result += check_availability(ix_x1, ix_y1);
 		if (type == 0){
@@ -231,15 +234,30 @@ void Gardien::update_chasseur_visibility(void){
 	}
 	
 	
-	
-	// Gardiens do not have 'optimal' sight, so anything farther
-	// from a THRESHOLD L2 distance from them is not detected ;-)
-	double THRESHOLD = 5;
+	// PLUGINS for Gardien behaviour	
+	double DONT_GET_CLOSER_THAN = 5;
+	double EYESIGHT_REACHES_HERE = 25;
 	if (isChasseurVisible){
-		if (std::sqrt(DX * DX + DY * DY) <= THRESHOLD){
+
+		double distance = std::sqrt(DX * DX + DY * DY);		
+		
+		// Proximity plugin: 
+		// 			Gardiens don't approach Chasseur
+		// 			more than a certain distance while
+		// 			attacking. 
+		if (distance <= DONT_GET_CLOSER_THAN){
 			stayStill = true;
 		} else {
 			stayStill = false;
+		}
+		// Eyesight plugin:
+		//
+		// 			Gardiens do not have 'optimal' 
+		// 			sight, so anything further
+		// 			from the eyesight threshold
+		// 			is not detected.
+		if (distance >= EYESIGHT_REACHES_HERE) {
+			isChasseurVisible = false;
 		}
 	}
 
@@ -252,17 +270,9 @@ double Gardien::get_lifesigns(){
 // Actively modify
 bool Gardien::process_fireball (float dx, float dy)
 {
-	//std::cout << "Ouch! I've received a Fireball and the code of my reaction is not written haha :-)" << std::endl;
+	// One indent exceeded :O
 
-	//  Decrease life according to the distance :-)
-	// CODE GOES  HERE ;;; TODO
-	
-	// If life terminates extinguish myself :-)	
-
-	if (dummy) return false;
-	bool TEST = true;
-	if (TEST)
-	{
+		if (dummy) return false;
 		
 		// on bouge que dans le vide!
 		if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
@@ -275,22 +285,21 @@ bool Gardien::process_fireball (float dx, float dy)
 		// calculer la distance entre le chasseur et le lieu de l'explosion.
 		float	x = (_fb->get_x() - _l->_guards[0]->_x) / Environnement::scale;
 		float	y = (_fb->get_y() - _l->_guards[0]->_y) / Environnement::scale;
-
 		float	radius = std::sqrt(x * x + y * y) ;
-		std::cout << "Radius is " << radius << std::endl;
-		if (radius == 0) radius = 1;
-		float factor = 1;//1/radius;
-		//std::cout << "radius is " << radius << std::endl;
-		if (radius > MAX_RADIUS_FIREBALL) factor = 0;
-		
-		((Chasseur *) _l->_guards[0])->lifesigns -= FIREBALL_DAMAGE * factor;
-		double lf = ((Chasseur *) _l->_guards[0])->lifesigns;
-		std::cout << "Chasseur lifesign is: " << lf << std::endl;	
-		if (lf < 0) exit(0);
-		return true;
+		//std::cout << "Radius is " << radius << std::endl;
+		if (radius < 1) radius = 1;
+		float factor = 1 / radius;
+
+		if (radius < MAX_RADIUS_FIREBALL){
+			((Chasseur *) _l->_guards[0])->lifesigns -= FIREBALL_DAMAGE * factor;
+			double lf = ((Chasseur *) _l->_guards[0])->lifesigns;
+			if (lf < 0) exit(0);
 		}
-	}
-	return false;
+
+		return false;
+		}
+	
+		return false;
 }
 
 
@@ -319,8 +328,12 @@ bool Gardien::process_fireball_external (float dx, float dy)
 		if (radius == 0) radius = 1;
 		float factor = 1;//1/radius;
 		//std::cout << "radius is " << radius << std::endl;
-		if (radius > MAX_RADIUS_FIREBALL) factor = 0;
-		this->lifesigns -= FIREBALL_DAMAGE * factor;
+		if (radius <= MAX_RADIUS_FIREBALL) {
+			std::string message_to_communicate = ">Ouch! I've been hit (Gardien lifesgins: " + std::to_string((int) this->lifesigns) + "/" + std::to_string(GARDIEN_LIFE) +")";
+			this->lifesigns -= FIREBALL_DAMAGE * factor;
+			((Chasseur *)_l->_guards[0])->add_info2message(message_to_communicate,
+							this->lifesigns);
+		}
 		
 		std::cout << "Lifesigns have been reduced to: " << lifesigns << std::endl;
 
@@ -350,7 +363,14 @@ bool Gardien::process_fireball_external (float dx, float dy)
 
 void Gardien::fire (int angle_vertical)
 {
+	double randN = ((double) (std::rand() % 100)) / 100.;
 	double ANGLE = chasseurTheta;
+	std::cout << "RandN is " << randN << " and accuracy is " << accuracy << std::endl;
+	if (randN > accuracy){
+		ANGLE += (std::rand() % 90 - 45) * (1 - accuracy / GARDIEN_ACCURACY) ;
+		angle_vertical += (std::rand() % 40 - 20)  * (1 - accuracy/GARDIEN_ACCURACY);
+	}
+	
 	//	message ("Woooshh...");
 	//_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
