@@ -184,7 +184,7 @@ void Labyrinthe::objects_create(char **tab) {
 					this->_guards[nb_guards]->_x = i*scale;
 					this->_guards[nb_guards]->_y = j*scale;
 					tab[i][j] = '1';
-					((Gardien *) this->_guards[nb_guards])-> dummy = false;
+					((Gardien *) this->_guards[nb_guards])->give_life();
 					nb_guards++;
 					break;
 				case 'T':
@@ -247,7 +247,7 @@ void Labyrinthe::destroyGardienByIndex(int i){
 
 	// Update the Gardien
 	local_ptr->tomber();
-	((Gardien *) local_ptr)->dummy = true;
+	((Gardien *) local_ptr)->remove_life();
 	
 	// Delete the Gardien
 	//delete local_ptr;

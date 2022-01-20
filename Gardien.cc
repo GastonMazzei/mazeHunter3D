@@ -34,59 +34,83 @@ void Gardien::update_gardien_accuracy(){
 }
 
 void Gardien::update_gardien_firingFrequency(){	
-        double factor =  (double) ((double) lifesigns / GARDIEN_LIFE);
-        if (factor <= 1e-2) return;
+	/*
+	 * Updates the Gardien Firing Frequency:
+	 * 	The firing_frequency is actually a period,
+	 * 	so if we name it "T" the function performs:
+	 *
+	 * 	f(T) = INITIAL_PERIOD * max( { MAX_LIFESIGNS / lifesigns, 1} )
+	 * 	
+	 * 	note: the units of the period are calls to Gardien::update
+	 */
+
+	// Protection 1
+	if (firing_frequency == 0) firing_frequency = 1;
+	
+	// Factor computation
+	double factor =  (double) ((double) lifesigns / GARDIEN_LIFE);
+        
+	// Protection 2
+	if (factor <= 1e-2) {
+		return;
+	}
+
+	// Frequency update
         firing_frequency = (int) ((double) firing_frequency / factor);
-        if (firing_frequency >=  MAX_ALLOWED_FIRING_FREQUENCY ) {
+        
+	// Protection 3
+	if (firing_frequency >=  MAX_ALLOWED_FIRING_FREQUENCY ) {
                 firing_frequency = MAX_ALLOWED_FIRING_FREQUENCY;
         }
-	std::cout << "Firing freq is now " << firing_frequency << std::endl;
 }
 
-void Gardien::update(void){
 
+
+void Gardien::update(void){
+	/*
+	 * Function encoding the Gardien's behaviour.
+	 * it is constantly called my OpenGL.
+	 */
+
+	// if DEAD: don't do anything
 	if (dummy){
 		return;
 	}
 		
 	_counter += 1;
 
-	// Update accuracy according to life
-	//printf("\n\nUpdating Gardien\n");
+
+	// Update variables based on lifesigns and Chasseur's position
 	update_gardien_accuracy();
 	update_gardien_firingFrequency();
-	// Check if the Hunter is visible, and
-	// change the anger status accordingly
 	update_chasseur_visibility();
-	//printf("we checked if the gardien is visible: is it?\n");
+	
+	// If the chasseur is visible we are angry	
 	if (isChasseurVisible){
 		angry = true;
-		//printf("IT WAS! :-)");
 	} else {
 		angry = false;
-		//printf("IT WAS NOT");
 	}
 	
-	// if we are angry, fire
+	// if we are angry and the counter allows it, we fire
 	if (angry) {
 		if (_counter % firing_frequency == 0){
 			fire(180);
 		}
 	}
 	
-	// if we are already closest to Chasseur don't do anything :-)
+	// MOVEMENT SECTION
+	
+	// Movement guard 1:
+	// 	if we are closer 'dont_get_closer_than' 
+	// 	we are already close enough to Chasseur so don't do anything :-)
 	if (stayStill) {
-		_angle = 360 -  (int) chasseurTheta;
+		_angle = 360 -  (int) chasseurTheta; // update Gardien's orientation
 		return;
 	}
 	
 	// if we are angry, move towards the Chasseur
-	//printf("\n\nWe are moving");
 	if (angry){
-		// TODO:
-		// With a certain probability based on the lifesigns
-		// move_randomly()
-		// else:
 		move_towards_chasseur();
 	} else {
 		move_randomly();
@@ -96,13 +120,21 @@ void Gardien::update(void){
 
 
 void Gardien::move_towards_chasseur(){
-	
+	/*
+ 	 * Implementation of the function
+	 * that makes the Gardien move towards
+	 * the Chasseur character (controlled by user).
+ 	 */	
 
+	// If it's not time to walk, stay still.
 	if (_counter % walking_frequency != 0) return;
 	
-	// This is the x-slope that goes from Gardien to Chasseur :-)
+
+	// Compute the x (DX) and y (DY) elements of
+	// the 2D vector that goes from Gardien to Chasseur
 	double DX = (_l->_guards[0]->_x - _x);
 	double DY = (_l->_guards[0]->_y - _y);
+
 	// Define the discretization required for the step
 	int L;
 	if (DX > DY){
@@ -111,38 +143,48 @@ void Gardien::move_towards_chasseur(){
 		L = (int) DY;
 	}
 	if (L==0) return;
-	// if the distance to Chasseur is smaller or equal than MIN_DIST
-	// then we stand still
-	double MIN_DIST = 0;
-	if (std::sqrt(DX * DX + DY * DY) > MIN_DIST){
-		double dx = DX / (double) L;
-		double dy = DY / (double) L;
-		move(dx,dy);	
-	}
+
+	// Update the Gardien character's orientation and move accordingly
 	_angle = 360 - (int)  chasseurTheta;
+	double dx = DX / (double) L;
+	double dy = DY / (double) L;
+	move(dx,dy);	
 }
 
+
 void Gardien::move_randomly(){
-	
+	/*
+ 	 * Implementation of the function
+	 * that makes the Gardien move randomly
+ 	 */	
+
+	// If it's not time to move, return
 	if (_counter % walking_frequency != 0) return;
 	
+	// Pick a random number between 0 and 1 for x and y, with resolution 1e-6.
+	// if it's higher  than the probability of changing direction, invert the
+	// respective dimension.
 	double xrand = ((double) (std::rand() % 100000)) / 100000.;
 	double yrand = ((double) (std::rand() % 100000)) / 100000.;
-	if (xrand > current_change_threshold){
+	if (xrand > probability_change_direction){
 		if (x_moving_trend == 1) {
 			x_moving_trend = -1;
 		} else {
 			x_moving_trend = 1;
 		}
 	}
-	if (yrand > current_change_threshold){
+	if (yrand > probability_change_direction){
 		if (y_moving_trend == 1) {
 			y_moving_trend = -1;
 		} else {
 			y_moving_trend = 1;
 		}
 	}
-	bool response = move((double)  x_moving_trend, (double) y_moving_trend);	
+	
+	// Try to move in the computed direction
+	bool response = move((double)  x_moving_trend, (double) y_moving_trend);
+
+	// If  it wasn't possible, change direction (180 degrees)
 	if (!response){
 		x_moving_trend *= -1;
 		y_moving_trend *= -1;
@@ -150,6 +192,9 @@ void Gardien::move_randomly(){
 }
 
 int Gardien::check_availability(int ix_x, int ix_y){
+	/*
+	 * Th
+	 */
 	if ((ix_x>=0) && (ix_y>=0) && (ix_x<_l->height()) && (ix_y<_l->width())){
 		if (EMPTY != _l->data(ix_x, ix_y)){
 			stayStill = false;
@@ -157,9 +202,6 @@ int Gardien::check_availability(int ix_x, int ix_y){
 			return 1;
 		}
 	} else {
-		//std::cout << "Incorrectly computed ray" << std::endl;
-		//std::cout << ix_x << " " << ix_y << std::endl;
-		//std::cout << "Bounds are " << _l->height() << " and " << _l->width() << std::endl;
 		return 1;
 	}
 	return 0;
@@ -235,8 +277,6 @@ void Gardien::update_chasseur_visibility(void){
 	
 	
 	// PLUGINS for Gardien behaviour	
-	double DONT_GET_CLOSER_THAN = 5;
-	double EYESIGHT_REACHES_HERE = 25;
 	if (isChasseurVisible){
 
 		double distance = std::sqrt(DX * DX + DY * DY);		
@@ -245,7 +285,7 @@ void Gardien::update_chasseur_visibility(void){
 		// 			Gardiens don't approach Chasseur
 		// 			more than a certain distance while
 		// 			attacking. 
-		if (distance <= DONT_GET_CLOSER_THAN){
+		if (distance <= dont_get_closer_than){
 			stayStill = true;
 		} else {
 			stayStill = false;
@@ -256,7 +296,7 @@ void Gardien::update_chasseur_visibility(void){
 		// 			sight, so anything further
 		// 			from the eyesight threshold
 		// 			is not detected.
-		if (distance >= EYESIGHT_REACHES_HERE) {
+		if (distance >= eyesight_reaches_here) {
 			isChasseurVisible = false;
 		}
 	}
