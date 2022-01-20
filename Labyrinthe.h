@@ -39,7 +39,7 @@
 
 // Gardien walking period (in calls-to-Gardien::update() units)
 #ifndef GARDIEN_WALKING_FREQUENCY
-#define GARDIEN_WALKING_FREQUENCY 5
+#define GARDIEN_WALKING_FREQUENCY 2
 #endif
 
 // Max Fireball Damage (if it explodes besides you)
@@ -55,13 +55,13 @@
 // Minimum allowed distance when Gardiens chase the Chasseur
 // (in grid units, i,j in d[i][j])
 #ifndef DONT_GET_CLOSER_THAN
-#define DONT_GET_CLOSER_THAN 5;
+#define DONT_GET_CLOSER_THAN 3;
 #endif
 
 // Max distance at which the Gardiens can detect the Chasseur 
 // (in grid units, i,j in d[i][j])
 #ifndef EYESIGHT_REACHES_HERE
-#define EYESIGHT_REACHES_HERE 25;
+#define EYESIGHT_REACHES_HERE 50;
 #endif
 
 // Max distance the fireball explosion can affect you

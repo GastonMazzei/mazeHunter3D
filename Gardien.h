@@ -23,6 +23,7 @@ public:
 	// Sets the killed status to "false" or "true"
 	void give_life(){dummy=false;}
 	void remove_life(){dummy=true;}
+	bool get_life(){return dummy;}
 
 	// public access to the lifesigns value
 	double get_lifesigns();

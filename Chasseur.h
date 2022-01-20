@@ -2,31 +2,42 @@
 #define CHASSEUR_H
 
 #include <stdio.h>
+#include  <set>
+
 #include "Mover.h"
 #include "Sound.h"
-#include  <set>
 #include "Labyrinthe.h"
 
-class Labyrinthe;
 
+/*
+ * Class for the Hunter: the main character, the only one
+ * the user controls with the mouse and keyboard :-)
+ */
 class Chasseur : public Mover {
 private:
-	// accepte ou non un deplacement.
+	// axuiliary function 
 	bool move_aux (double dx, double dy);
+	
+	// Set with the index of killed Chasseurs
 	std::set<int> killed;
-	bool hasLastBallExploded = false;
-	int _counter=0;
+
+	// Configuration relevant to the blinking messages that
+	// display Chasseur and Gardien's life.
 	bool blinking_message=false;
-	std::string current_message="Hello";
-	std::string next_message = "Hi";
+	bool gardienInfo = false;
+	int _counter=0;
 	int blinking_period = 60;
 	int last_blinker = 250;
-	bool gardienInfo = false;
 	double lowest_lifesigns = GARDIEN_LIFE;
+	std::string current_message="Hello";
+	std::string next_message = "Hi";
+	
 public:
-	void add_info2message(std::string information,double lifesigns);
+	
+	// Lifesigns of the Chasseur
 	double lifesigns = CHASSEUR_LIFE;
-	// les sons.
+
+	// Sounds
 	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.
 	static Sound*	_hunter_hit;	// cri du chasseur touché.
 	static Sound*	_wall_hit;		// on a tapé un mur.
@@ -43,8 +54,10 @@ public:
 	bool process_fireball (float dx, float dy);
 	// tire sur un ennemi.
 	void fire (int angle_vertical);
-	// clic droit.
-	void right_click (bool shift, bool control);
+	
+	// Call this function to start a blinking pattern on the screen,
+	// 'information' will be displayed.
+	void add_info2message(std::string information,double lifesigns);
 };
 
 #endif

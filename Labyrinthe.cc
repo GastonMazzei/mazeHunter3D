@@ -207,55 +207,36 @@ void Labyrinthe::objects_create(char **tab) {
 }
 
 
-/*void Labyrinthe::poster_create(char**tab) {
-	Wall *posters = (Wall *) malloc(NB_BOXES * sizeof(Wall));
-	
-	int limit = NB_BOXES;
-	//annoying to take care of realloc and since it's not core to the game I'll just let it be for now
-	int height = this->height();
-	int width = this->width();
-	
-	int j,i = 0, nb_boxes = 0;
-	for (; i < height; i++) {
-		for (j = 0; j < width; j++) {
-			else if (tab[i][j] > 96 && tab[i][j] < 123) {
-				if (nb_posters < limit) {
-					posters[nb_boxes] = (Wall *) malloc(sizeof(Wall));
-					posters[nb_boxes]->_x1 = i;
-					posters[nb_boxes]->_x2 = i;
-					posters[nb_boxes]->_y1 = j;
-					posters[nb_boxes]->_y2 = j;
-					posters[nb_boxes]->_ntex = 0;
-					nb_posters++;
-				}
-			}
-		}
-	}
-}*/
 
 void Labyrinthe::destroyGardienByIndex(int i){
+	/*
+	 * Function called to kill a Gardien by index
+	 */
 
 	// Store the pointer
 	Mover * local_ptr = this->_guards[i];
 
-	// Update the Gardien to the dummy one
-	//this->_guards[i] = this->_guards[this->_nguards];
 
 	// Get its position
 	int x = (int) this->_guards[i]->_x / Environnement::scale ;
 	int y = (int) this->_guards[i]->_y / Environnement::scale ;
 
-	// Update the Gardien
+	// Mark the Gardien as killed, and make it fall
 	local_ptr->tomber();
 	((Gardien *) local_ptr)->remove_life();
 	
-	// Delete the Gardien
-	//delete local_ptr;
+	
+	// Should we deallocate Gardien's memory? Our last opinion: NO!
+	bool DEALLOCATE_GARDIEN = false;
+	if (DEALLOCATE_GARDIEN){
+		this->_guards[i] = this->_guards[this->_nguards];
+		delete local_ptr;
+	}
 
-	// Free the space in the data
+	// Free the space in the map so that Chasseur can walk over it
 	this->_data[x][y] = EMPTY;
 
-	// Rester au floor
+	// Finally: make it touch the floor
 	local_ptr->rester_au_sol();
 }
 

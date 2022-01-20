@@ -6,17 +6,28 @@
  *	Tente un deplacement.
  */
 
-bool Chasseur::move_aux (double dx, double dy)
-{
+bool Chasseur::move_aux (double dx, double dy){
+
+
+	/*
+	 * This function tries to Move the Chasseur to the required place,
+	 * but before that it piggybacks a counter that is used to display
+	 * on screen the lifesigns and potentially other 'blinking messages'
+	 * such as the currently-under-attack Gardien's lifesigns.
+	 */
 	_counter++;
-	//message(current_message.c_str());
+	
+	// 
 	if (blinking_message){
+		// There is a blinking  mode activated
 		if (_counter == last_blinker){
+			// The count has been exceeded, terminate blinking
 			current_message = " ";
 			next_message = " ";
 			message(current_message.c_str());
 			blinking_message = false;
 		} else if (_counter % blinking_period == 0){
+			// The time to blink is now
 			std::string temp = current_message;
 			if (gardienInfo){
 				current_message = ("Current lifesigns are: " + 
@@ -26,27 +37,33 @@ bool Chasseur::move_aux (double dx, double dy)
 			} else {
 				current_message = next_message;	
 			}
+			//swtich messages
 			next_message = current_message;
 		}
 	} else if (_counter % 5 == 0) {
+		// No blinking pattern on: show lifesigns
 		message(("Current lifesigns are: " + 
 			std::to_string((int) lifesigns) + 
 			"/" + std::to_string((int) CHASSEUR_LIFE )).c_str());
 	}
+
+
 	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale),
-							 (int)((_y + dy) / Environnement::scale)))
-	{
+							 (int)((_y + dy) / Environnement::scale))){
+		// If the move is allowed: do it, return true
 		_x += dx;
 		_y += dy;
 		return true;
 	} else if (BOUNTY_TAG == _l -> data ((int)((_x + dx) / Environnement::scale),
-							 (int)((_y + dy) / Environnement::scale)))
-	
-	{
+							 (int)((_y + dy) / Environnement::scale))){
+		
+		// If the move is not allowed, but that is because the treasure is ahead
+		// EXIT CONDITION: you have won, you found the treasure :-)
 		std::cout << "CONGRATULATIONS! YOU HAVE WON ;-)" << std::endl;
 		exit(0);
 	}
 
+	// Move not possible
 	return false;
 }
 
@@ -63,28 +80,24 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
 }
 
+
 /*
  *	Fait bouger la boule de feu (ceci est une exemple, à vous de traiter les collisions spécifiques...)
  */
 
 bool Chasseur::process_fireball (float dx, float dy)
 {
+	// Compute the normal vector to the Fireball's trajectory
 	double Ox = -dy / (std::sqrt(dx*dx+dy*dy));
 	double Oy = dx / (std::sqrt(dx*dx+dy*dy));
 	if ((((int) (_fb->get_x()+dx + Ox))/Environnement::scale >= _l->height()) ||
 		(((int) (_fb->get_y() + dy + Oy))/Environnement::scale >= _l->width())){
-		std::cout << "dx and dy are " << dx << " " << dy << std::endl;
-		std::cout << "Ox and Oy are " << Ox << " " << Oy << std::endl;
-		std::cout << "Fireball X and Y are " << _fb->get_x() << " " << _fb->get_y() << std::endl;
-		std::cout << "It didnt pass through" << std::endl;
+		// If the fireball is travelling too close to the walls it should explode
 		return false;
 	}
 
-	// calculer la distance entre le chasseur et le lieu de l'explosion.
-	//
-	float	x = (_x - _fb -> get_x ()) / Environnement::scale;
-	float	y = (_y - _fb -> get_y ()) / Environnement::scale;
-	float	dist2 = x*x + y*y;	
+
+	// Check if the fireball can travel with width 3 units of map (i.e. i,j in data[i][j])
 	if ((EMPTY == _l -> data (
 				(int)((_fb -> get_x () + dx) / Environnement::scale),
 				(int)((_fb -> get_y () + dy) / Environnement::scale))
@@ -99,38 +112,48 @@ bool Chasseur::process_fireball (float dx, float dy)
 		 )
 		)
 	{
-		if (!gardienInfo) message ("Woooshh ..... %d", (int) dist2);
+		// If there is nothing relevant being displayed, print "Woooosh..."
+		if (!gardienInfo) message ("Woooshh .....");
 		return true;
 	}
 	else {
-
-	// faire exploser la boule de feu avec un bruit fonction de la distance.
+		// The fireball can't advance. It  should explode!
 		float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
+		float	x = (_x - _fb -> get_x ()) / Environnement::scale;
+		float	y = (_y - _fb -> get_y ()) / Environnement::scale;
+		float	dist2 = x*x + y*y;
+
 		_wall_hit -> play (1. - dist2/dmax2);
 		current_message = "Boom...";
 		message (current_message.c_str());
+
+		// Stop giving priority to Gardien statistics
 		gardienInfo = false;
 		lowest_lifesigns = GARDIEN_LIFE;
-		hasLastBallExploded = true;
 
-
-	std::cout << "Process the lifesigns of your enemy: there are " << _l->_nguards <<  std::endl;
+	// Check for every Gardien if they should be affected by the explosion
 	for (int i=1; i<_l->_nguards; i++){
-		//std::cout << "Checking if its dummy" << std::endl;
-		bool dummy = ((Gardien *) _l->_guards[i])->dummy;
-		//std::cout << "Checking if it has already been killed" << std::endl;
+		
+		// Are they alive?
+		bool dummy = ((Gardien *) _l->_guards[i])->get_life();
+		
+		// Have they already been killed?
 		if ( !(killed.find(i) != killed.end()) && !(dummy)){
-			//std::cout << "Processing guard  n " << i << std::endl;
+			
+			// Decrease their life
 			((Gardien *) _l->_guards[i])->process_fireball_external(0,0);
 			Gardien *p_temp = (Gardien*) _l->_guards[i];
-			//std::cout << "Computing lifesigns: " << p_temp->get_lifesigns() << std::endl;
+			
+			// If they should be dead, effectively kill them
 			if (p_temp->get_lifesigns() <= 0){
-				std::cout << "Deleting object :-)" << std::endl;
-				
 				// To kill a Gardien, we call the 
 				// Labyrinth's method for it ;-)
 				((Labyrinthe *) _l)->destroyGardienByIndex(i);
+				
+				// Add to the set of indexes of killed Gardiens
 				killed.insert(i);
+
+				// Set up a blinking message saying that you have killed them!
 				blinking_message = true;
 				next_message = "KILLED";
 				message("KILLED");
@@ -140,7 +163,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 	}
 
 
-
+		// 'false' terminates the fireball evolution routine
 		return false;
 	}
 	
@@ -150,48 +173,28 @@ bool Chasseur::process_fireball (float dx, float dy)
 }
 
 void Chasseur::add_info2message(std::string information, double lifesigns){
-	//if (lifesigns < lowest_lifesigns){
-		lowest_lifesigns = lifesigns;
-		current_message =  information;
-		next_message = information;
-		blinking_message = true;
-		_counter = -25;
-		gardienInfo = true;
-		message(current_message.c_str());
-	//}
+	/*
+	 * Function that gets called and 
+	 * produces the printing of 
+	 * 'information' in the screen.
+	 */
+	lowest_lifesigns = lifesigns;
+	current_message =  information;
+	next_message = information;
+	blinking_message = true;
+	_counter = -25;
+	gardienInfo = true;
+	message(current_message.c_str());
 }
 
-/*
- *	Tire sur un ennemi.
- */
-void Chasseur::fire (int angle_vertical)
-{
-
-	std::cout << " Requested angle_vertical is: " << angle_vertical << std::endl;
-	hasLastBallExploded = false;
+void Chasseur::fire (int angle_vertical){
+	/* 
+	 * Fire at the enemy
+	 */
 	message ("Woooshh...");
 	_hunter_fire -> play ();
-	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
-				 /* angles de visée */ angle_vertical, _angle);
+	_fb -> init ( _x, _y, 10., angle_vertical, _angle);
 	
-	//for (int *p = _l->_guards[1]; p <  + sizeof(ia)/sizeof(*ia); ++p) {
-    	//	printf("Char is: %d\n", *p);
-	//}
-	//
-	//
 }
 
-/*
- *	Clic droit: par défaut fait tomber le premier gardien.
- *
- *	Inutile dans le vrai jeu, mais c'est juste pour montrer
- *	une utilisation des fonctions « tomber » et « rester_au_sol »
- */
 
-void Chasseur::right_click (bool shift, bool control)
-{
-	if (shift)
-		_l -> _guards [1] -> rester_au_sol ();
-	else
-		_l -> _guards [1] -> tomber ();
-}
