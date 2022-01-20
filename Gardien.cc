@@ -1,27 +1,27 @@
 #include "Gardien.h"
-#include  <iostream>
 
-/*
- *	Move
- */
+bool Gardien::move (double dx, double dy){
+	/*
+	 * Move the gardien by increasing it's _x 
+	 * position coordinate by dx and it's _y
+	 * position coordinate by dy.
+	 */
 
-bool Gardien::move (double dx, double dy)
-{
-	double X = (int) (_x + dx) / Environnement::scale;
-	double Y = (int) (_y + dy) / Environnement::scale;
-	//std::cout << Y << "," << X << " and " << _l->height() << "," << _l->width() << std::endl;
+
+	// Build the variables that represent the evolved coordinates
+	// (in grid-units, i.e. i,j in data[i][j])
+	int X = (int) (_x + dx) / Environnement::scale;
+	int Y = (int) (_y + dy) / Environnement::scale;
+	
+	// Protect the program by not allowing coordinates outside the range
 	if ((X<0) || (Y<0) || (Y >= _l->width()) || (X >= _l->height())){
 		return false;
 	}
-	if (EMPTY == _l -> data (
-				// 1st argument
-				(int)  X 
-				       ,
-				 // 2nd argument
-			 	 (int)  Y 
-				      
-				 ))
-	{
+
+	// Check if the map is empty in the new position
+	if (EMPTY == _l -> data (X,Y)){
+
+		// Evolve the Gardien's positions
 		_x += dx;
 		_y += dy;
 		return true;
@@ -30,6 +30,11 @@ bool Gardien::move (double dx, double dy)
 }
 
 void Gardien::update_gardien_accuracy(){	
+	/*
+	 * Update the accuracy by defining it as the maximum possible accuracy
+	 * modulated by the lifesigns as a 0-1 number yielded by the 
+	 * quotient of the current life against the initial life
+	 */
 	accuracy = (lifesigns / GARDIEN_LIFE) * GARDIEN_ACCURACY;
 }
 
@@ -193,10 +198,15 @@ void Gardien::move_randomly(){
 
 int Gardien::check_availability(int ix_x, int ix_y){
 	/*
-	 * Th
+	 * Returns 0 or 1, depending on if the point (ix_x, ix_y) can be
+	 * transversed by a ray of light or not.
 	 */
+
+	// If the point is inside the grid...
 	if ((ix_x>=0) && (ix_y>=0) && (ix_x<_l->height()) && (ix_y<_l->width())){
+		// If it is not empty
 		if (EMPTY != _l->data(ix_x, ix_y)){
+			// Chasseur is not visible, return 1
 			stayStill = false;
 			isChasseurVisible = false;
 			return 1;
@@ -204,7 +214,7 @@ int Gardien::check_availability(int ix_x, int ix_y){
 	} else {
 		return 1;
 	}
-	return 0;
+	return 0; // it is O.K., the ray of light can pass.
 }
 
 void Gardien::update_chasseur_visibility(void){
@@ -304,117 +314,133 @@ void Gardien::update_chasseur_visibility(void){
 }
 
 double Gardien::get_lifesigns(){
+	/*
+	 * Simple function that returns
+	 * Gardien's private attribute
+	 * called "lifesigns"
+	 */
 	return lifesigns;
 }
 
-// Actively modify
-bool Gardien::process_fireball (float dx, float dy)
-{
-	// One indent exceeded :O
+bool Gardien::process_fireball (float dx, float dy){
+	/*
+	 * Function to process our own fireball against Chasseur.
+	 */
 
-		if (dummy) return false;
+		// if it's dead, don't do anything
+	if (dummy) return false;
 		
-		// on bouge que dans le vide!
-		if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
+	// Can the fireball keep transversing space?
+	if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
 							 (int)((_fb -> get_y () + dy) / Environnement::scale)))
-		{
-			return true;
-		} else {
-		float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
+	{
+		// Yes
+		return true;
+	} else {
+		// No. Make it explode and compute how much it hurts the Chasseur.
 	
-		// calculer la distance entre le chasseur et le lieu de l'explosion.
+		// Compute distance between fireball and Chasseur
 		float	x = (_fb->get_x() - _l->_guards[0]->_x) / Environnement::scale;
 		float	y = (_fb->get_y() - _l->_guards[0]->_y) / Environnement::scale;
 		float	radius = std::sqrt(x * x + y * y) ;
-		//std::cout << "Radius is " << radius << std::endl;
 		if (radius < 1) radius = 1;
 		float factor = 1 / radius;
 
+		// If the distance is smaller than the max allowed affection radius, decrease
+		// the Chasseur's lifesigns.
 		if (radius < MAX_RADIUS_FIREBALL){
 			((Chasseur *) _l->_guards[0])->lifesigns -= FIREBALL_DAMAGE * factor;
 			double lf = ((Chasseur *) _l->_guards[0])->lifesigns;
-			if (lf < 0) exit(0);
-		}
+			
+			// EXIT CONDITION: if the Chasseur's lifesigns have reached zero then exit
+			if (lf < 0) {
+				exit(0);
+				std::cout << "YOU HAVE LOST!" << std::endl;
+			}
 
-		return false;
 		}
-	
-		return false;
+	}
+	// make the fireball explode	
+	return false;
 }
 
 
-// Actively modify
 bool Gardien::process_fireball_external (float dx, float dy)
 {
-	//std::cout << "Ouch! I've received a Fireball and the code of my reaction is not written haha :-)" << std::endl;
+	/*
+	 * Function called by Chasseur to make the Gardien be affected by the fireball
+	 */
 
-	//  Decrease life according to the distance :-)
-	// CODE GOES  HERE ;;; TODO
-	
-	// If life terminates extinguish myself :-)	
-
+	// if Chasseur is dead (dummy==true), return
 	if (dummy) return false;
-	bool TEST = true;
-	if (TEST)
-	{
-		// calculer la distance entre le chasseur et le lieu de l'explosion.
-		float	x = (_x - _l->_guards[0]->_fb -> get_x ()) / Environnement::scale;
-		float	y = (_y - _l->_guards[0]->_fb -> get_y ()) / Environnement::scale;
-		//float	x = (_x - _fb -> get_x ()) / Environnement::scale;
-		//float	y = (_y - _fb -> get_y ()) / Environnement::scale;
 
-		float	radius = std::sqrt(x * x + y * y) ;
-		std::cout << "Radius is " << radius << std::endl;
-		if (radius == 0) radius = 1;
-		float factor = 1;//1/radius;
-		//std::cout << "radius is " << radius << std::endl;
-		if (radius <= MAX_RADIUS_FIREBALL) {
-			std::string message_to_communicate = ">Ouch! I've been hit (Gardien lifesgins: " + std::to_string((int) this->lifesigns) + "/" + std::to_string(GARDIEN_LIFE) +")";
-			this->lifesigns -= FIREBALL_DAMAGE * factor;
-			((Chasseur *)_l->_guards[0])->add_info2message(message_to_communicate,
-							this->lifesigns);
-		}
-		
-		std::cout << "Lifesigns have been reduced to: " << lifesigns << std::endl;
 
-		// on bouge que dans le vide!
-		//if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
-		//					 (int)((_fb -> get_y () + dy) / Environnement::scale)))
-		//{
-		//	message ("Woooshh ..... %d", (int) dist2);
-		//	// il y a la place.
-		//	return true;
-		//}
-		// collision...
-		// calculer la distance maximum en ligne droite.
-		//float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
-		// faire exploser la boule de feu avec un bruit fonction de la distance.
-		//_wall_hit -> play (1. - dist2/dmax2);
-		//message ("Booom...");
+	// Compute distance between Chasseur's fireball and current Gardien
+	float	x = (_x - _l->_guards[0]->_fb -> get_x ()) / Environnement::scale;
+	float	y = (_y - _l->_guards[0]->_fb -> get_y ()) / Environnement::scale;
+	float	radius = std::sqrt(x * x + y * y) ;
+	if (radius == 0) radius = 1;
+
+	/* Compute the hitting factor, given by 
+	*
+	*        { 1       if    1 >= x
+	* f(x) = { 1/x     if    1 <= x <= MAX_RADIUS
+	*        { 0       if         x >= MAX_RADIUS
+	*
+	* which has a qualitative drawing like this:
+	*
+	*        |
+	*damage 1|__
+	*factor  |  \
+	*        |   \
+	*       0|    \____
+	*        0  1 max_radius
+	*/
+
+	float factor = 1/radius;
+
+	if (radius <= MAX_RADIUS_FIREBALL) {
+
+		// Decrease lifesigns
+		this->lifesigns -= FIREBALL_DAMAGE * factor;
+
+		// Build a message to be displayed on sreen and send it
+		std::string message_to_communicate = ">Ouch! I've been hit (Gardien lifesgins: " + 
+							std::to_string((int) this->lifesigns) + "/" + 
+							std::to_string(GARDIEN_LIFE) +")";
+		((Chasseur *)_l->_guards[0])->add_info2message(message_to_communicate,
+								this->lifesigns);
+		return true;
 	}
-	return true;
+		
+	return false;
 }
 
 
 
-/*
- *	Attack the hunter.
- */
-
-void Gardien::fire (int angle_vertical)
-{
+void Gardien::fire (int angle_vertical){
+	/*
+ 	* Attack the hunter.
+ 	*/
+	
+	// Get a probability between 0.01 and 1.00
 	double randN = ((double) (std::rand() % 100)) / 100.;
+	
+	// ANGLE is the azimuth. It starts unperturbed
+	// being the azimuth that makes the Gardien face
+	// the chasseur, i.e. 'chasseurTheta'
 	double ANGLE = chasseurTheta;
-	std::cout << "RandN is " << randN << " and accuracy is " << accuracy << std::endl;
+	
+	// if the accuracy is smaller than the 
+	// picked number, add a perturbation 
+	// both to the azimuth and to the altitude
 	if (randN > accuracy){
 		ANGLE += (std::rand() % 90 - 45) * (1 - accuracy / GARDIEN_ACCURACY) ;
 		angle_vertical += (std::rand() % 40 - 20)  * (1 - accuracy/GARDIEN_ACCURACY);
 	}
-	
-	//	message ("Woooshh...");
-	//_hunter_fire -> play ();
-	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
-			 /* angles de vis�e */ angle_vertical, ANGLE);
+
+	// Throw the fireball
+	_fb -> init (_x, _y, 10., angle_vertical, ANGLE);
 }
 
 

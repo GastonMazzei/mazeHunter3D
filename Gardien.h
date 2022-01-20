@@ -1,5 +1,8 @@
 
 #include "Labyrinthe.h"
+#include "Chasseur.h"
+#include "Mover.h"
+
 #include <random>
 #include <ctime>
 #include <cmath>
@@ -7,11 +10,6 @@
 #ifndef GARDIEN_H
 #define GARDIEN_H
 
-
-#include "Chasseur.h"
-#include "Mover.h"
-
-class Labyrinthe;
 
 /*
  * Class for generic Alien Guardians
