@@ -13,15 +13,7 @@ bool Gardien::move (double dx, double dy)
 	if ((X<0) || (Y<0) || (Y >= _l->width()) || (X >= _l->height())){
 		return false;
 	}
-	if (EMPTY == _l -> data (
-				// 1st argument
-				(int)  X 
-				       ,
-				 // 2nd argument
-			 	 (int)  Y 
-				      
-				 ))
-	{
+	if (EMPTY == _l -> data ((int) X, (int) Y)) {
 		_x += dx;
 		_y += dy;
 		return true;
@@ -34,10 +26,7 @@ void Gardien::update_gardien_accuracy(){
 }
 
 void Gardien::update(void){
-
-	if (dummy){
-		return;
-	}
+	if (dummy){ return; }
 
 	// Update accuracy according to life
 	//printf("\n\nUpdating Gardien\n");
@@ -72,7 +61,7 @@ void Gardien::update(void){
 	
 	// if we are angry, move towards the Chasseur
 	//printf("\n\nWe are moving");
-	if (angry){
+	/*if (angry){
 		// TODO:
 		// With a certain probability based on the lifesigns
 		// move_randomly()
@@ -80,7 +69,7 @@ void Gardien::update(void){
 		move_towards_chasseur();
 	} else {
 		move_randomly();
-	}
+	}*/
 
 }
 
@@ -248,7 +237,6 @@ double Gardien::get_lifesigns(){
 // Actively modify
 bool Gardien::process_fireball (float dx, float dy)
 {
-	//std::cout << "Ouch! I've received a Fireball and the code of my reaction is not written haha :-)" << std::endl;
 
 	//  Decrease life according to the distance :-)
 	// CODE GOES  HERE ;;; TODO

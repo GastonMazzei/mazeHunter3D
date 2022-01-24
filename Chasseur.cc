@@ -31,10 +31,6 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
 }
 
-/*
- *	Fait bouger la boule de feu (ceci est une exemple, à vous de traiter les collisions spécifiques...)
- */
-
 bool Chasseur::process_fireball (float dx, float dy)
 {
 	// calculer la distance entre le chasseur et le lieu de l'explosion.

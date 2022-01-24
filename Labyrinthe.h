@@ -15,15 +15,16 @@
 class Labyrinthe : public Environnement {
 private:
 	//char	_data [LAB_WIDTH][LAB_HEIGHT];
-	char	**_data;
+	char  **_data;
 	int 	_width = -1;
 	int 	_height = -1;
 
 	char **find_measurements (std::ifstream *lab_file, char *line); //90-60-90 or nothing
 	void fill_temp_tab (char **tab, char *line, int indice);
 	void walls_create (char **tab);
-	void objects_create(char **tab);
-	void print();
+	void objects_create (char **tab);
+	int poster_create(char **tab, int i, int j);
+	void print ();
 
 public:
 	void destroyGardienByIndex(int i);	
@@ -39,8 +40,11 @@ public:
 	
 	bool is_wall (char c);
 	
-	char data (int i, int j)
-	{
+	char data (int i, int j) {
+		if (i < 0 || j < 0 || i >= _height || j >= _width) {
+			static char atila = '1';
+			return atila;
+		}
 		return _data [i][j];
 	};	// retourne la case (i, j).
 };
