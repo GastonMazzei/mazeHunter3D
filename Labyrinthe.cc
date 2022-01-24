@@ -104,8 +104,10 @@ void Labyrinthe::fill_temp_tab (char **tab, char *line, int indice) {
 void Labyrinthe::walls_create (char **tab) {
 	int limit = 258;
 	Wall *walls = (Wall *) malloc(limit*sizeof(Wall));
-	int nb_walls = 0;
-	int height = this->height();
+	int nb_walls = 0, height = this->height(), width = this->width(), nb_posters = 0;
+	Wall *posters = (Wall *) malloc(this->_npicts * sizeof(Wall));
+	std::cout << "nb picts : " << this->_npicts << std::endl;
+	
 	for (int i = 0; i < height; i++) {	//we find horizontal walls first
 		int j = 0;
 		for (; tab[i][j] != '\0'; j++) {
@@ -121,6 +123,16 @@ void Labyrinthe::walls_create (char **tab) {
 					nb_walls++;
 				}
 				j = k-1;
+			} else if (tab[i][j] > 97 && tab[i][j] < 123) {
+				if (i > 0 && i+1 < height && (tab[i+1][j] == '|' || tab[i+1][j] == '+') && (tab[i-1][j] == '|' || tab[i-1][j] == '+')) {
+					posters[nb_posters] = {i-1, j, i+1, j, 0};
+					std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
+					char tmp [256];
+					sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
+					posters[nb_posters]._ntex = wall_texture (tmp);
+					tab[i][j] = '|';
+					nb_posters++;
+				}
 			}
 		}
 	}
@@ -140,61 +152,94 @@ void Labyrinthe::walls_create (char **tab) {
 					walls[nb_walls] = { i, j, k-1, j, 0 };
 					nb_walls++;
 				}
+			} else if (tab[i][j] > 96 && tab[i][j] < 123) {
+				if (j > 0 && j+1 < width && (tab[i][j+1] == '-' || tab[i][j+1] == '+') && (tab[i][j-1] == '-' || tab[i][j-1] == '+')) {
+					posters[nb_posters] = {i, j-1, i, j+1, 0};
+					std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
+					char tmp [256];
+					sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
+					posters[nb_posters]._ntex = wall_texture (tmp);
+					tab[i][j] = '-';
+					nb_posters++;
+				}
 			}
 		}
 	}
+	
+	this->_npicts = nb_posters;
+	this->_picts = posters;
+	std::cout << "nb picts : " << this->_npicts << std::endl;
 	this->_walls = walls;
 	this->_nwall = nb_walls;
 }
 
 
 void Labyrinthe::objects_create(char **tab) {
+	//We start by initialising/allocating ressources
 	Box	*boxes = (Box *) malloc(this->_nboxes * sizeof(Box));
+	//Wall *posters = (Wall *) malloc(this->_npicts * sizeof(Wall));
 	this->_guards = new Mover* [this->_nguards + 1];
 	int height = this->height();
 	int width = this->width();
 	
-	int j,i = 0, nb_boxes = 0, nb_guards = 1;
+	int j,i = 0, nb_boxes = 0, nb_guards = 1, nb_posters = 0;
+	//guards is initialised to 1 to take into account the player in pos 0
 	for (; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			switch (tab[i][j]) { //we try to find what type of char it is
-				case '+' :
+				case '+' :	//wall
 					tab[i][j] = '1';
 					break;
-				case '-' :
+				case '-' :	//wall
 					tab[i][j] = '1';
 					break;
-				case '|' :
+				case '|' :	//wall
 					tab[i][j] = '1';
 					break;
-				case 'x' :
+				case 'x' :	//box
 					boxes[nb_boxes]._x = i;
 					boxes[nb_boxes]._y = j;
 					boxes[nb_boxes]._ntex = 0;
 					tab[i][j] = '1';
 					nb_boxes++;
 					break;
-				case 'C' :
+				case 'C' :	//hunter
 					this->_guards[0] = new Chasseur (this);
-					this->_guards[0]->_x = j*scale;
-					this->_guards[0]->_y = i*scale;
+					this->_guards[0]->_x = i*scale;
+					this->_guards[0]->_y = j*scale;
 					break;
-				case 'G' :
+				case 'G' :	//guardian
 					this->_guards[nb_guards] = new Gardien (this, "Lezard");
-					this->_guards[nb_guards]->_x = j*scale;
-					this->_guards[nb_guards]->_y = i*scale;
+					this->_guards[nb_guards]->_x = i*scale;
+					this->_guards[nb_guards]->_y = j*scale;
 					tab[i][j] = '1';
 					((Gardien *) this->_guards[nb_guards])-> dummy = false;
 					nb_guards++;
 					break;
-				case 'T':
-					this->_treasor._x = j;
-					this->_treasor._y = i;
+				case 'T' :	//treasure
+					this->_treasor._x = i;
+					this->_treasor._y = j;
 					tab[i][j] = '1';
 					break;
-				default :
+				default :	//le reste
 					if (tab[i][j] < 97 || tab[i][j] > 122)
 						tab[i][j] = EMPTY;
+					else {
+						int temp = poster_create(tab, i, j);
+						/*std::cout<<"temp = "<<temp<<std::endl;
+						if (temp != -1) {
+							posters[nb_posters] = {i-2*(temp&8), j-2*(temp&2), i+2*(temp&4), j+2*(temp&1), 0};
+							std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
+							std::cout<<"\t{"<<i-2*(temp&8)<<", "<<j-2*(temp&2)<<", "<<i+2*(temp&4)<<", "<<j+2*(temp&1)<<", "<<0<<"}"<<std::endl;
+							char tmp [256];
+							sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
+							posters[nb_posters]._ntex = wall_texture (tmp);
+							tab[i][j] = '1';
+							nb_posters++;
+						} else {
+							std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
+						}*/
+					}
 					break;
 			}
 		}
@@ -207,15 +252,75 @@ void Labyrinthe::objects_create(char **tab) {
 }
 
 
-/*void Labyrinthe::poster_create(char**tab) {
+int Labyrinthe::poster_create(char **tab, int i, int j) {
+	int height = this->height();
+	int width = this->width();
+	//EMPTY if we check a location we already parsed otherwise it is " "
+	if ((i < height+1 && tab[i+1][j] == ' ') || (i > 0 && tab[i-1][j] == EMPTY)) {
+		if (tab[i][j+1] == '-')
+			return 1;
+		else if (tab[i][j-1] == '-')
+			return 2;
+		else if (tab[i][j+1] == '+')
+			return 1;
+		else if (tab[i][j-1] == '+')
+			return 2;
+	} else if ((j < width+1 && tab[i][j+1] == ' ') || (j > 0 && tab[i][j-1] == EMPTY)) {
+		if (tab[i][j+1] == '|')
+			return 4;
+		else if (tab[i][j-1] == '|')
+			return 8;
+		else if (tab[i][j+1] == '+')
+			return 4;
+		else if (tab[i][j-1] == '+')
+			return 8;
+	}
+	return -1;
+}
+
+
+
+
+/*void Labyrinthe::poster_create(char**tab, int i, int j, int ntex, char *tex) {
 	Wall *posters = (Wall *) malloc(NB_BOXES * sizeof(Wall));
 	
+	//sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
+	//_picts [1]._ntex = wall_texture (tmp);
+	
 	int limit = NB_BOXES;
-	//annoying to take care of realloc and since it's not core to the game I'll just let it be for now
 	int height = this->height();
 	int width = this->width();
 	
 	int j,i = 0, nb_boxes = 0;
+	//remplacer tout ça avec des 1
+	Wall *affiche = {
+	if ((i < height+1 && tab[i+1][j] == EMPTY) || (i > 0 && tab[i-1][j] == EMPTY)) {
+		if (tab[i][j+1] == '-') {
+			Wall *affiche = {i, j, i, j+1, 0};
+		}
+		else if (tab[i][j-1] == '-') {
+			Wall *affiche = {i, j-1, i, j, 0};
+		}
+		else if (tab[i][j+1] == '+') {
+			Wall *affiche = {i, j, i, j+1, 0};
+		}
+		else if (tab[i][j-1] == '+') {
+			Wall *affiche = {i, j-1, i, j, 0};
+		}
+	} else if ((j < width+1 && tab[i][j+1] == EMPTY) || (j > 0 && tab[i][j-1] == EMPTY)) {
+		if (tab[i][j+1] == '|') {
+			Wall *affiche = {i, j, i, j+1, 0};
+		}
+		else if (tab[i][j-1] == '|') {
+			Wall *affiche = {i, j-1, i, j, 0};
+		}
+		else if (tab[i][j+1] == '+') {
+			Wall *affiche = {i, j, i, j+1, 0};
+		}
+		else if (tab[i][j-1] == '+') {
+			Wall *affiche = {i, j-1, i, j, 0};
+		}
+	}
 	for (; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			else if (tab[i][j] > 96 && tab[i][j] < 123) {
@@ -232,6 +337,7 @@ void Labyrinthe::objects_create(char **tab) {
 		}
 	}
 }*/
+
 
 void Labyrinthe::destroyGardienByIndex(int i){
 
@@ -302,7 +408,7 @@ Labyrinthe::Labyrinthe (char* filename)
 /* FIN - NOUVEAU */
 
 	// deux affiches.
-	_npicts = 0;
+	//_npicts = 0;
 	//_picts = affiche;
 	// la deuxième à une texture différente.
 	char	tmp [128];
