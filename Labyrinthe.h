@@ -12,10 +12,78 @@
 #define	LAB_WIDTH	258
 #define	LAB_HEIGHT	258
 
+// Chasseur's life
+#ifndef CHASSEUR_LIFE
+#define CHASSEUR_LIFE 800
+#endif
+
+// Gardien's life
+#ifndef GARDIEN_LIFE
+#define GARDIEN_LIFE 50
+#endif
+
+// Gardien's accuracy max value
+#ifndef GARDIEN_ACCURACY
+#define GARDIEN_ACCURACY 1.0
+#endif
+
+// Gardien's initial firing period (in calls-to-Gardien::update() units)
+#ifndef GARDIEN_FIRING_FREQUENCY
+#define GARDIEN_FIRING_FREQUENCY 50
+#endif
+
+// Gardien's max allowed firing period (in calls-to-Gardien::update() units)
+#ifndef MAX_ALLOWED_FIRING_FREQUENCY
+#define MAX_ALLOWED_FIRING_FREQUENCY 130
+#endif
+
+// Gardien walking period (in calls-to-Gardien::update() units)
+#ifndef GARDIEN_WALKING_FREQUENCY
+#define GARDIEN_WALKING_FREQUENCY 2
+#endif
+
+// Max Fireball Damage (if it explodes besides you)
+#ifndef FIREBALL_DAMAGE
+#define FIREBALL_DAMAGE 23
+#endif
+
+// Probability of Gardien changing it's direction (normalized to 1)
+#ifndef GARDIEN_PROBABILITY_CHANGE_DIRECTION
+#define GARDIEN_PROBABILITY_CHANGE_DIRECTION 0.03
+#endif
+	
+// Minimum allowed distance when Gardiens chase the Chasseur
+// (in grid units, i,j in d[i][j])
+#ifndef DONT_GET_CLOSER_THAN
+#define DONT_GET_CLOSER_THAN 3;
+#endif
+
+// Max distance at which the Gardiens can detect the Chasseur 
+// (in grid units, i,j in d[i][j])
+#ifndef EYESIGHT_REACHES_HERE
+#define EYESIGHT_REACHES_HERE 50;
+#endif
+
+// Max distance the fireball explosion can affect you
+// (in grid units, i,j in d[i][j])
+#ifndef MAX_RADIUS_FIREBALL
+#define MAX_RADIUS_FIREBALL 6
+#endif
+
+// A tag defined for the bounty, will be made 'char'
+#ifndef BOUNTY_TAG
+#define BOUNTY_TAG 'T'
+#endif
+
+
+
+
+/*
+ * Labyrinth: class derived from Environment
+ */
 class Labyrinthe : public Environnement {
 private:
-	//char	_data [LAB_WIDTH][LAB_HEIGHT];
-	char  **_data;
+	char	**_data;
 	int 	_width = -1;
 	int 	_height = -1;
 

@@ -213,13 +213,13 @@ void Labyrinthe::objects_create(char **tab) {
 					this->_guards[nb_guards]->_x = i*scale;
 					this->_guards[nb_guards]->_y = j*scale;
 					tab[i][j] = '1';
-					((Gardien *) this->_guards[nb_guards])-> dummy = false;
+					((Gardien *) this->_guards[nb_guards])->give_life();
 					nb_guards++;
 					break;
 				case 'T' :	//treasure
 					this->_treasor._x = i;
 					this->_treasor._y = j;
-					tab[i][j] = '1';
+					tab[i][j] = BOUNTY_TAG;
 					break;
 				default :	//le reste
 					if (tab[i][j] < 97 || tab[i][j] > 122)
@@ -279,89 +279,35 @@ int Labyrinthe::poster_create(char **tab, int i, int j) {
 }
 
 
-
-
-/*void Labyrinthe::poster_create(char**tab, int i, int j, int ntex, char *tex) {
-	Wall *posters = (Wall *) malloc(NB_BOXES * sizeof(Wall));
-	
-	//sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
-	//_picts [1]._ntex = wall_texture (tmp);
-	
-	int limit = NB_BOXES;
-	int height = this->height();
-	int width = this->width();
-	
-	int j,i = 0, nb_boxes = 0;
-	//remplacer tout ça avec des 1
-	Wall *affiche = {
-	if ((i < height+1 && tab[i+1][j] == EMPTY) || (i > 0 && tab[i-1][j] == EMPTY)) {
-		if (tab[i][j+1] == '-') {
-			Wall *affiche = {i, j, i, j+1, 0};
-		}
-		else if (tab[i][j-1] == '-') {
-			Wall *affiche = {i, j-1, i, j, 0};
-		}
-		else if (tab[i][j+1] == '+') {
-			Wall *affiche = {i, j, i, j+1, 0};
-		}
-		else if (tab[i][j-1] == '+') {
-			Wall *affiche = {i, j-1, i, j, 0};
-		}
-	} else if ((j < width+1 && tab[i][j+1] == EMPTY) || (j > 0 && tab[i][j-1] == EMPTY)) {
-		if (tab[i][j+1] == '|') {
-			Wall *affiche = {i, j, i, j+1, 0};
-		}
-		else if (tab[i][j-1] == '|') {
-			Wall *affiche = {i, j-1, i, j, 0};
-		}
-		else if (tab[i][j+1] == '+') {
-			Wall *affiche = {i, j, i, j+1, 0};
-		}
-		else if (tab[i][j-1] == '+') {
-			Wall *affiche = {i, j-1, i, j, 0};
-		}
-	}
-	for (; i < height; i++) {
-		for (j = 0; j < width; j++) {
-			else if (tab[i][j] > 96 && tab[i][j] < 123) {
-				if (nb_posters < limit) {
-					posters[nb_boxes] = (Wall *) malloc(sizeof(Wall));
-					posters[nb_boxes]->_x1 = i;
-					posters[nb_boxes]->_x2 = i;
-					posters[nb_boxes]->_y1 = j;
-					posters[nb_boxes]->_y2 = j;
-					posters[nb_boxes]->_ntex = 0;
-					nb_posters++;
-				}
-			}
-		}
-	}
-}*/
-
-
 void Labyrinthe::destroyGardienByIndex(int i){
+	/*
+	 * Function called to kill a Gardien by index
+	 */
 
 	// Store the pointer
 	Mover * local_ptr = this->_guards[i];
 
-	// Update the Gardien to the dummy one
-	//this->_guards[i] = this->_guards[this->_nguards];
 
 	// Get its position
 	int x = (int) this->_guards[i]->_x / Environnement::scale ;
 	int y = (int) this->_guards[i]->_y / Environnement::scale ;
 
-	// Update the Gardien
+	// Mark the Gardien as killed, and make it fall
 	local_ptr->tomber();
-	((Gardien *) local_ptr)->dummy = true;
+	((Gardien *) local_ptr)->remove_life();
 	
-	// Delete the Gardien
-	//delete local_ptr;
+	
+	// Should we deallocate Gardien's memory? Our last opinion: NO!
+	bool DEALLOCATE_GARDIEN = false;
+	if (DEALLOCATE_GARDIEN){
+		this->_guards[i] = this->_guards[this->_nguards];
+		delete local_ptr;
+	}
 
-	// Free the space in the data
+	// Free the space in the map so that Chasseur can walk over it
 	this->_data[x][y] = EMPTY;
 
-	// Rester au floor
+	// Finally: make it touch the floor
 	local_ptr->rester_au_sol();
 }
 

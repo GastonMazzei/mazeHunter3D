@@ -1,4 +1,8 @@
 
+#include "Labyrinthe.h"
+#include "Chasseur.h"
+#include "Mover.h"
+
 #include <random>
 #include <ctime>
 #include <cmath>
@@ -7,65 +11,78 @@
 #define GARDIEN_H
 
 
-#ifndef GARDIEN_LIFE
-#define GARDIEN_LIFE 200
-#endif
-
-#ifndef GARDIEN_ACCURACY
-#define GARDIEN_ACCURACY 1.0
-#endif
-
-#ifndef FIREBALL_DAMAGE
-#define FIREBALL_DAMAGE 200
-#endif
-
-#ifndef MAX_RADIUS_FIREBALL
-#define MAX_RADIUS_FIREBALL 8
-#endif
-
-#include "Mover.h"
-
-class Labyrinthe;
-
+/*
+ * Class for generic Alien Guardians
+ */
 class Gardien : public Mover {
 public:
 	Gardien (Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
+	// Constructor set the random seed to the time at which the script is run
 	{std::srand(time(0));}
+
+	// Sets the killed status to "false" or "true"
+	void give_life(){dummy=false;}
+	void remove_life(){dummy=true;}
+	bool get_life(){return dummy;}
+
+	// public access to the lifesigns value
+	double get_lifesigns();
 	
-	bool dummy = true;
+	// update() is constantly called by the system over all Gardiens
 	void update (void);
+
+	// Behaviour functions
 	bool move (double dx, double dy);
 	void fire (int angle_vertical);
 	bool process_fireball (float dx, float dy);
-	double get_lifesigns();
+
+	// Separate function used to process fireballs thrown by Chasseur
+	bool process_fireball_external (float dx, float dy);
+
 private:
-	int check_availability(int ix_x, int ix_y);
 	// ***CLASS ATTRIBUTES***
-	// binary movement behaviour: angry or not?
-	bool angry = false;
-	// is the chasseur visible?
-	bool isChasseurVisible = false;
-	double chasseurTheta = 0; // Angle to Chasseur :-)
-	bool stayStill = false;
-	// a real-valued variable indicates the lifesigns of Gardien
+
+	// 1- Macro-defined attributes
+	int firing_frequency = GARDIEN_FIRING_FREQUENCY; 
+       	int walking_frequency = GARDIEN_WALKING_FREQUENCY;
+	int eyesight_reaches_here = EYESIGHT_REACHES_HERE;
+	int  dont_get_closer_than = DONT_GET_CLOSER_THAN;
 	double lifesigns = GARDIEN_LIFE;
-	// a 0-1 number is the probability of the Gardien missing it's target
-	double accuracy =  GARDIEN_ACCURACY;
-	double default_change_threshold = 0.97;
-	double current_change_threshold = 0.97;
-	int x_moving_trend = 1;
-	int y_moving_trend = -1;
-	int firing_counter=0;
-	int firing_frequency=20;
-       	int walking_frequency=3;	
-	// they are not frequencies but periods in calls-to-update() units:-)
+	double accuracy = GARDIEN_ACCURACY;
+	double probability_change_direction = (double) 1 - (double) GARDIEN_PROBABILITY_CHANGE_DIRECTION; 
+	
+	// 2- Self-explained attributes
+	bool isChasseurVisible = false;
+	bool stayStill = false;
+	int _counter = 0;
+	double chasseur_distance = 0;
+	double chasseurTheta = 0; // Angle to Chasseur :-)
+
+	// 3- Attributes that may require explanation
+	//
+	bool dummy = true; // boolean indicates if the Gardien has been killed (true)	
+	//
+	bool angry = false; // movement has a binary behaviour: angry or not?
+	//
+	int x_moving_trend = 1; // if Gardien is not angry, it moves randomly in 
+	int y_moving_trend = -1; // the direction (x_moving_trend, y_moving_trend) ϵ [(1,1), (1,-1), (-1,1), (-1,-1)]
+	//
 
 	// ***CLASS FUNCTIONS***
-	// Is the chasseur visible? update vars accordingly.
+	//
+	//  can a ray pass through this point? if not, return 1
+	int check_availability(int ix_x, int ix_y);  
+	//
+	// Is the chasseur visible? update variables accordingly.
 	void update_chasseur_visibility(void);
-	// The accuracy depends on the gardien's lifesigns.
+	//
+	// ACCURACY and FIRING_FREQUENCY depend on the
+	// Gardien's lifesigns
+	//
 	void update_gardien_accuracy(void);
-	// Wrappers for diffeVrent movements
+	void update_gardien_firingFrequency(void);
+	//
+	// Helpers: the two type of movements (angry or not)
 	void move_towards_chasseur();
 	void move_randomly();
 
