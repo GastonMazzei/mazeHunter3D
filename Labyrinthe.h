@@ -76,22 +76,24 @@
 #endif
 
 
+typedef struct {
+	char key;
+	char *path;
+} textur;
 
 
-/*
- * Labyrinth: class derived from Environment
- */
 class Labyrinthe : public Environnement {
 private:
 	char	**_data;
 	int 	_width = -1;
 	int 	_height = -1;
+	textur	**_text;
+	int 	_nbtext = -1;
 
-	char **find_measurements (std::ifstream *lab_file, char *line); //90-60-90 or nothing
+	void find_measurements (std::ifstream *lab_file, char *line); //90-60-90 or nothing
 	void fill_temp_tab (char **tab, char *line, int indice);
-	void walls_create (char **tab);
-	void objects_create (char **tab);
-	int poster_create(char **tab, int i, int j);
+	void walls_create ();
+	void objects_create ();
 	void print ();
 
 public:
@@ -102,19 +104,18 @@ public:
 	//and get instead height and the teacher code would still work
 	//ik it's bad design but it's better than to have array reversed imo
 	int width (int flag = 1) { return (flag == 1)? _width:_height; };	// retourne la largeur du labyrinthe.
-	//void set_width (int w) { assert(w > 0); _width = w; };
 	int height (int flag = 1) { return (flag == 1)? _height:_width; };	// retourne la longueur du labyrinthe.
-	//void set_height (int h) { assert(h > 0); _height = h; };
 	
-	bool is_wall (char c);
+	bool is_lab (char c);
 	
+	char **data() { return _data; };
 	char data (int i, int j) {
 		if (i < 0 || j < 0 || i >= _height || j >= _width) {
 			static char atila = '1';
-			return atila;
+			return atila;	//atila is a 'hun' and we need to return a 1 therefore it works ! :)
 		}
 		return _data [i][j];
-	};	// retourne la case (i, j).
+	};
 };
 
 #endif

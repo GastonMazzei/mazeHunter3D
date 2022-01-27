@@ -1,23 +1,36 @@
 #include "Labyrinthe.h"
 #include "Chasseur.h"
 #include "Gardien.h"
+#include <stdnoreturn.h>
+
+//====
+//Error handling
+#define CHECK(op,code) do { if (op == true) rerror(code);} while(0)
+
+char Rnos[5][64] = {"malloc failed", "realloc failed", "file couldn't be openned", "file wasn't fully read or at all", "The maze is bigger than 257x257"};
+
+void rerror(int code) {
+	if (errno != 0) perror(Rnos[code]);
+	std::cout << code << std::endl;
+    exit(EXIT_FAILURE);
+}
+//===
 
 Sound*	Chasseur::_hunter_fire;	// bruit de l'arme du chasseur.
 Sound*	Chasseur::_hunter_hit;	// cri du chasseur touché.
 Sound*	Chasseur::_wall_hit;	// on a tapé un mur.
+char monstres[8][16] = {"Blade", "drfreak", "garde", "Lezard", "Marvin", "Potator", "Samourai", "Serpent"};
 
-Environnement* Environnement::init (char* filename)
-{
+
+Environnement* Environnement::init (char* filename) {
 	return new Labyrinthe (filename);
 }
 
-
-bool Labyrinthe::is_wall (char c) {
+bool Labyrinthe::is_lab (char c) {
 	return (c != ' ' && c != '\n' && c != 'x' && c != 'T' && c != 'G' && c != 'C');
 }
 
 void Labyrinthe::print() {
-	std::cout << std::endl;
 	int height = this->height(), width = this->width();
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
@@ -30,47 +43,69 @@ void Labyrinthe::print() {
 	}
 }
 
-char **Labyrinthe::find_measurements (std::ifstream *lab_file, char *line) {
+
+/* Function that processes pre-treatment, finds the maze in the file and it's measurements */
+void Labyrinthe::find_measurements (std::ifstream *lab_file, char *line) {
 	//trying to find the max length and height of the maze
-	int maxw = 0;
-	int maxh = 0;
+	int maxw = 0, maxh = 0, nb_textures = 0;
 	lab_file->getline(line, 2048);
 	
 	//we malloc an array to contain the maze only
 	char **tab = (char**) malloc(258 * sizeof(char*));
+	CHECK((tab == NULL), 0);
 	memset(tab, '\0', 258);
+	
+	//we make use of the lines we read to see if some textures are initialised
+	textur **textures = (textur**) malloc(26 * sizeof(textur*));
+	CHECK((textures == NULL), 0);
 	
 	//loop until end of file
 	bool plus_flag = false;
 	while (!lab_file->eof()) {
 		//if getline failed and it has not reached eof
-		if (lab_file->fail()) {
-			std::cout << "reading the file failed, either the line is too long (<2048) or the construction of sentry failed" << std::endl;
-			return nullptr;
-		}
+		CHECK((lab_file->fail()), 3);
 		int i = 0;
 		//we try to extract the layout from the rest of the file
 		//commentary inside the layout is currently not handled
 		for (; i < 2048 && line[i] != '#' && line[i] != '\n' && line[i] != '\0'; i++) {
 			if (line[i] == '+') plus_flag = true;
 		}
-		for (; i > 0 && !this->is_wall(line[i]); i--);
+		for (; i > 0 && !this->is_lab(line[i]); i--);
 		maxw = (i > maxw)? i:maxw;
-		if (plus_flag == true) {
+		if (plus_flag == true) {			//then we are in the maze for sure
 			this->fill_temp_tab(tab, line, i);
-			//not a commentary or useless line then increase width
-			if (i != 0) maxh+=1;
+			if (i != 0) maxh+=1;			//not a commentary or useless line then increase width
+		} else { 							//else we try to find textures
+			char tempc, *temps = (char*) malloc(258);
+			CHECK((temps == NULL), 0);
+			int tempi = sscanf(line, "%c \t %s", &tempc, temps);
+			if (tempi == 2 && tempc != ' ' && tempc != '#') {	//we found a texture
+				textures[nb_textures] = (textur*) malloc(sizeof(textur));
+				CHECK((textures[nb_textures] == NULL), 0);
+				textures[nb_textures]->key = tempc;
+				textures[nb_textures]->path = (char *) malloc(258);
+				CHECK((textures[nb_textures]->path == NULL), 0);
+				strcpy(textures[nb_textures]->path, temps);
+				nb_textures++;
+			}
+			free(temps);
 		}
-		lab_file->getline(line, 2048);
+		lab_file->getline(line, 2048);		//move on to next line
 	}
-	lab_file->seekg(std::ios::beg);
 	
-	int nb_boxes = 0, nb_guards = 0, nb_treasures = 0, nb_posters = 0;
+	//pre-treatment is done now we just need to count
+	int nb_boxes = 0, nb_guards = 0, nb_treasures = 0, nb_posters = 0, nb_marks = 0;
 	for (int i = 0; i < maxh; i++) {
 		for (int j = 0; j < maxw; j++) {
-			if (tab[i][j] == 'x') nb_boxes++;
+			if (tab[i][j] == ' ') {			//we are trying to see if we put a mark on the ground
+				if ((rand()%(maxh*maxh)) < 4) {
+					tab[i][j] = 'M';		//we mark the maze there
+					nb_marks++;
+				}
+			}
+			else if (tab[i][j] == 'x') nb_boxes++;
 			else if (tab[i][j] == 'G') nb_guards++;
-			else if (tab[i][j] == 'T') nb_treasures++;	//pour vérifier la validité du layout
+			else if (tab[i][j] == 'T') nb_treasures++;	//to verify the validity of the layout
 			else if (tab[i][j] > 96 && tab[i][j] < 123) nb_posters++;
 		}
 	}
@@ -79,19 +114,20 @@ char **Labyrinthe::find_measurements (std::ifstream *lab_file, char *line) {
 	this->_nboxes = nb_boxes;
 	this->_nguards = nb_guards+1;	//nb guards + the hunter
 	this->_npicts = nb_posters;
-	return tab;
+	this->_text = textures;
+	this->_nbtext = nb_textures;
+	this->_nmarks = nb_marks;
+	this->_data = tab;
 }
 
-
+/* Function used to create the data segment of the maze */
 void Labyrinthe::fill_temp_tab (char **tab, char *line, int indice) {
-	static int j = 0;
+	static int j = 0;				//keep in memory the line number
 	if (indice != 0 && j < 258) {
 		tab[j] = (char*) malloc (258*sizeof(char));
+		CHECK((tab[j] == NULL), 0);
 		
-		if (indice+1 >= 258) {
-			std::cout << "The maze is bigger than 257x257" << std::endl;
-			return;
-		}
+		CHECK((indice+1 >= 258), 4);
 		tab[j][indice+1] = '\0';
 		for (; indice >= 0; indice--) {
 			tab[j][indice] = line[indice];
@@ -100,20 +136,22 @@ void Labyrinthe::fill_temp_tab (char **tab, char *line, int indice) {
 	}
 }
 
-
-void Labyrinthe::walls_create (char **tab) {
+/* Function that finds out where walls and posters should be */
+void Labyrinthe::walls_create () {
+	char **tab = this->_data;
 	int limit = 258;
 	Wall *walls = (Wall *) malloc(limit*sizeof(Wall));
+	CHECK((walls == NULL), 0);
 	int nb_walls = 0, height = this->height(), width = this->width(), nb_posters = 0;
 	Wall *posters = (Wall *) malloc(this->_npicts * sizeof(Wall));
-	std::cout << "nb picts : " << this->_npicts << std::endl;
+	CHECK((posters == NULL), 0);
 	
-	for (int i = 0; i < height; i++) {	//we find horizontal walls first
+	for (int i = 0; i < height; i++) {			//we find horizontal walls first
 		int j = 0;
 		for (; tab[i][j] != '\0'; j++) {
 			if (tab[i][j] == '+') {
 				int k = j+1;
-				for (; tab[i][k] != '\0' && Labyrinthe::is_wall(tab[i][k]); k++);
+				for (; tab[i][k] != '\0' && Labyrinthe::is_lab(tab[i][k]); k++);
 				if (j < k-1) {
 					if (nb_walls >= limit) {
 						limit *= 2;
@@ -123,70 +161,83 @@ void Labyrinthe::walls_create (char **tab) {
 					nb_walls++;
 				}
 				j = k-1;
-			} else if (tab[i][j] > 97 && tab[i][j] < 123) {
+			} else if (tab[i][j] > 96 && tab[i][j] < 123) {		//because of line above we can only find poster vertically first
 				if (i > 0 && i+1 < height && (tab[i+1][j] == '|' || tab[i+1][j] == '+') && (tab[i-1][j] == '|' || tab[i-1][j] == '+')) {
 					posters[nb_posters] = {i-1, j, i+1, j, 0};
-					std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
 					char tmp [256];
-					sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
-					posters[nb_posters]._ntex = wall_texture (tmp);
-					tab[i][j] = '|';
-					nb_posters++;
+					int l = 0;
+					for (; l < this->_nbtext && this->_text[l]->key != tab[i][j]; l++);
+					if (l < this->_nbtext) {	//finding path
+						sprintf (tmp, "%s/%s", texture_dir, this->_text[l]->path);
+						posters[nb_posters]._ntex = wall_texture (tmp);
+						nb_posters++;
+					} else {		//ignoring if path not explicit
+						sprintf (tmp, "%s/%s", texture_dir, "brickwall.jpg");
+						posters[nb_posters]._ntex = wall_texture (tmp);
+						nb_posters++;
+					}
 				}
 			}
 		}
 	}
-
+	
 	for (int i = 0; i < height; i++) {	//then vertical walls
 		int j = 0;
 		for (; tab[i][j] != '\0'; j++) {
 			if (tab[i][j] == '+') {
 				int k = i+1;
-				for (; k < height && Labyrinthe::is_wall(tab[k][j]); k++);
+				for (; k < height && Labyrinthe::is_lab(tab[k][j]); k++);
 				if (i < k-1) {
 					if (nb_walls >= limit) {
 						limit *= 2;
 						walls = (Wall *) realloc(walls, limit*sizeof(Wall));
-						std::cout << "walls need to be realloc'ed\n";
+						CHECK((walls == NULL), 1);
 					}
 					walls[nb_walls] = { i, j, k-1, j, 0 };
 					nb_walls++;
 				}
-			} else if (tab[i][j] > 96 && tab[i][j] < 123) {
+			} else if (tab[i][j] > 96 && tab[i][j] < 123) {		//horizontal posters
 				if (j > 0 && j+1 < width && (tab[i][j+1] == '-' || tab[i][j+1] == '+') && (tab[i][j-1] == '-' || tab[i][j-1] == '+')) {
 					posters[nb_posters] = {i, j-1, i, j+1, 0};
-					std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
 					char tmp [256];
-					sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
-					posters[nb_posters]._ntex = wall_texture (tmp);
-					tab[i][j] = '-';
-					nb_posters++;
+					int l = 0;
+					for (; l < this->_nbtext && this->_text[l]->key != tab[i][j]; l++);
+					if (l < this->_nbtext) {	//finding path
+						sprintf (tmp, "%s/%s", texture_dir, this->_text[l]->path);
+						posters[nb_posters]._ntex = wall_texture (tmp);
+						nb_posters++;
+					} else {		//ignoring if path not provided
+						sprintf (tmp, "%s/%s", texture_dir, "brickwall.jpg");
+						posters[nb_posters]._ntex = wall_texture (tmp);
+						nb_posters++;
+						//especially in the given lab the first seen poster path doesn't exist and we don't handle broken paths
+					}
 				}
 			}
 		}
 	}
-	
 	this->_npicts = nb_posters;
 	this->_picts = posters;
-	std::cout << "nb picts : " << this->_npicts << std::endl;
 	this->_walls = walls;
 	this->_nwall = nb_walls;
 }
 
-
-void Labyrinthe::objects_create(char **tab) {
+/* Function that initialize the other objects */
+void Labyrinthe::objects_create() {
 	//We start by initialising/allocating ressources
+	char **tab = this->data();
 	Box	*boxes = (Box *) malloc(this->_nboxes * sizeof(Box));
-	//Wall *posters = (Wall *) malloc(this->_npicts * sizeof(Wall));
+	CHECK((boxes == NULL), 0);
+	Box *marks = (Box *) malloc(this->_nmarks * sizeof(Box));
+	CHECK((marks == NULL), 0);
 	this->_guards = new Mover* [this->_nguards + 1];
-	int height = this->height();
-	int width = this->width();
+	int height = this->height(), width = this->width();
 	
-	int j,i = 0, nb_boxes = 0, nb_guards = 1, nb_posters = 0;
+	int j,i = 0, nb_boxes = 0, nb_guards = 1, nb_marks = 0;
 	//guards is initialised to 1 to take into account the player in pos 0
 	for (; i < height; i++) {
 		for (j = 0; j < width; j++) {
-			switch (tab[i][j]) { //we try to find what type of char it is
+			switch (tab[i][j]) { //we try to find what type of char (object) it is
 				case '+' :	//wall
 					tab[i][j] = '1';
 					break;
@@ -209,84 +260,51 @@ void Labyrinthe::objects_create(char **tab) {
 					this->_guards[0]->_y = j*scale;
 					break;
 				case 'G' :	//guardian
-					this->_guards[nb_guards] = new Gardien (this, "Lezard");
+					{
+					char *temps = (char*) malloc(16);
+					CHECK((temps == NULL), 0);
+					strcpy(temps, monstres[(int)(rand()%8)]);	//random texture
+					this->_guards[nb_guards] = new Gardien (this, temps); //TODO
 					this->_guards[nb_guards]->_x = i*scale;
 					this->_guards[nb_guards]->_y = j*scale;
 					tab[i][j] = '1';
 					((Gardien *) this->_guards[nb_guards])->give_life();
 					nb_guards++;
 					break;
+					}	//essential because i initialize some values in case
 				case 'T' :	//treasure
 					this->_treasor._x = i;
 					this->_treasor._y = j;
 					tab[i][j] = BOUNTY_TAG;
 					break;
-				default :	//le reste
+				case 'M' :	//marks on the ground
+					{
+					char *temps = (char*) malloc(16);
+					CHECK((temps == NULL), 0);
+					marks[nb_marks]._x = i;
+					marks[nb_marks]._y = j;
+					sprintf (temps, "%s/p%i.gif", texture_dir, (int) rand()%4+1);	//random texture
+					marks[nb_marks]._ntex = wall_texture(temps);
+					tab[i][j] = EMPTY;
+					nb_marks++;
+					break;
+					}
+				default :	//the rest
 					if (tab[i][j] < 97 || tab[i][j] > 122)
 						tab[i][j] = EMPTY;
-					else {
-						int temp = poster_create(tab, i, j);
-						/*std::cout<<"temp = "<<temp<<std::endl;
-						if (temp != -1) {
-							posters[nb_posters] = {i-2*(temp&8), j-2*(temp&2), i+2*(temp&4), j+2*(temp&1), 0};
-							std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
-							std::cout<<"\t{"<<i-2*(temp&8)<<", "<<j-2*(temp&2)<<", "<<i+2*(temp&4)<<", "<<j+2*(temp&1)<<", "<<0<<"}"<<std::endl;
-							char tmp [256];
-							sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
-							posters[nb_posters]._ntex = wall_texture (tmp);
-							tab[i][j] = '1';
-							nb_posters++;
-						} else {
-							std::cout<<"\t{"<<i<<", "<<j<<"}"<<std::endl;
-						}*/
-					}
 					break;
 			}
 		}
 	}
 	// Define a dummy Gardien
 	this->_guards[nb_guards] = new Gardien (this, "Lezard");
-	std::cout << "There are " << nb_guards << " guards in the entire scene" << std::endl;
-
 	this->_boxes = boxes;
+	this->_marks = marks;
 }
 
-
-int Labyrinthe::poster_create(char **tab, int i, int j) {
-	int height = this->height();
-	int width = this->width();
-	//EMPTY if we check a location we already parsed otherwise it is " "
-	if ((i < height+1 && tab[i+1][j] == ' ') || (i > 0 && tab[i-1][j] == EMPTY)) {
-		if (tab[i][j+1] == '-')
-			return 1;
-		else if (tab[i][j-1] == '-')
-			return 2;
-		else if (tab[i][j+1] == '+')
-			return 1;
-		else if (tab[i][j-1] == '+')
-			return 2;
-	} else if ((j < width+1 && tab[i][j+1] == ' ') || (j > 0 && tab[i][j-1] == EMPTY)) {
-		if (tab[i][j+1] == '|')
-			return 4;
-		else if (tab[i][j-1] == '|')
-			return 8;
-		else if (tab[i][j+1] == '+')
-			return 4;
-		else if (tab[i][j-1] == '+')
-			return 8;
-	}
-	return -1;
-}
-
-
+/* Function called to kill a Gardien by index */
 void Labyrinthe::destroyGardienByIndex(int i){
-	/*
-	 * Function called to kill a Gardien by index
-	 */
-
-	// Store the pointer
-	Mover * local_ptr = this->_guards[i];
-
+	Mover * local_ptr = this->_guards[i];	// Store the pointer
 
 	// Get its position
 	int x = (int) this->_guards[i]->_x / Environnement::scale ;
@@ -295,7 +313,6 @@ void Labyrinthe::destroyGardienByIndex(int i){
 	// Mark the Gardien as killed, and make it fall
 	local_ptr->tomber();
 	((Gardien *) local_ptr)->remove_life();
-	
 	
 	// Should we deallocate Gardien's memory? Our last opinion: NO!
 	bool DEALLOCATE_GARDIEN = false;
@@ -312,70 +329,20 @@ void Labyrinthe::destroyGardienByIndex(int i){
 }
 
 
-Labyrinthe::Labyrinthe (char* filename)
-{
+Labyrinthe::Labyrinthe (char* filename) {
 	std::ifstream lab_file;
 	lab_file.open(filename, std::ifstream::in);
+	CHECK((!lab_file.is_open()), 2);
+	char *line = (char*) malloc(2048);
+	CHECK((line == NULL), 0);
 	
-	if(!lab_file.is_open()) {
-		// need to crash with error message
-		std::cout << "filename for maze layout not found or not opennable" << std::endl;
-		return;
-	}
-	
-	char *line;
-	if ((line = (char*) malloc(2048)) == NULL) {
-		std::cout << "malloc crash" << std::endl;
-		return;
-	}
-	
-	char **tab = this->find_measurements(&lab_file, line);
-	std::cout << "walls_create" << std::endl;
-	walls_create (tab);
-	std::cout << "end walls_create" << std::endl;
-	objects_create (tab);
-	
-	this->_data = tab;
-	this->print();
-
-	// une affiche.
-	//  (attention: pour des raisons de rapport d'aspect, les affiches doivent faire 2 de long)
-	/*static Wall affiche [] = {
-		{ 4, 0, 6, 0, 0 },		// première affiche.
-		{ 8, 0, 10, 0, 0 },		// autre affiche.
-	};*/
-
-/* DEB - NOUVEAU */
-	// 2 marques au sol.
-	static Box	marques [] = {
-		{ 50, 14, 0 },
-		{ 20, 15, 0 },
-	};
-/* FIN - NOUVEAU */
-
-	// deux affiches.
-	//_npicts = 0;
-	//_picts = affiche;
-	// la deuxième à une texture différente.
-	char	tmp [128];
-	//sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
-	//_picts [1]._ntex = wall_texture (tmp);
-	//_boxes = caisses;
-
-/* DEB - NOUVEAU */
-	// mettre une autre texture à la deuxième caisse.
-	//sprintf (tmp, "%s/%s", texture_dir, "boite.jpg");
-	//caisses [1]._ntex = wall_texture (tmp);
-
-	// mettre les marques au sol.
-	sprintf (tmp, "%s/%s", texture_dir, "p1.gif");
-	marques [0]._ntex = wall_texture (tmp);
-	sprintf (tmp, "%s/%s", texture_dir, "p3.gif");
-	marques [1]._ntex = wall_texture (tmp);
-	_nmarks = 2;
-	_marks = marques;
-/* FIN - NOUVEAU */
-
-	std::cout << "coucou fin" << std::endl;
+	//we first find measurements of the maze and apply pre treatments
+	find_measurements(&lab_file, line);
+	free(line);
+	lab_file.close();
+	//we then create the walls
+	walls_create ();
+	//we fill it with the other objects
+	objects_create ();
 }
 
