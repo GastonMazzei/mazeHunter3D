@@ -99,12 +99,10 @@ private:
 public:
 	void destroyGardienByIndex(int i);	
 	Labyrinthe (char*);
-	//width and height now take a parameter because the teacher uses them in the reverse order as we do
-	//height = width and width = height and is not natural therefore we can keep using this->width()
-	//and get instead height and the teacher code would still work
-	//ik it's bad design but it's better than to have array reversed imo
-	int width (int flag = 1) { return (flag == 1)? _width:_height; };	// retourne la largeur du labyrinthe.
-	int height (int flag = 1) { return (flag == 1)? _height:_width; };	// retourne la longueur du labyrinthe.
+	//width and height are reversed because the teacher uses them in the reverse order as we do
+	//ik it's bad design but it's better than to have array reversed imo  ======>> more in the summary
+	int width () { return _height; };	// retourne la largeur du labyrinthe.
+	int height () { return _width; };	// retourne la longueur du labyrinthe.
 	
 	bool is_lab (char c);
 	
@@ -116,6 +114,7 @@ public:
 		}
 		return _data [i][j];
 	};
+	void set_data (int i, int j, char value);
 };
 
 #endif

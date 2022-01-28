@@ -58,8 +58,8 @@ public:
 	Mover**	_guards;	// les gardes (tableau de pointeurs de gardiens).
 	int		_nguards;	// leur nombre.
 
-	virtual int width (int flag = 1) =0;	// retourne la largeur du labyrinthe.
-	virtual int height (int flag = 1) =0;	// retourne la longueur du labyrinthe.
+	virtual int width () =0;	// retourne la largeur du labyrinthe.
+	virtual int height () =0;	// retourne la longueur du labyrinthe.
 	virtual char data (int i, int j) =0;	// retourne la case (i, j).
 	virtual ~Environnement () {}
 	// reconsidere le labyrinthe pour le reafficher.

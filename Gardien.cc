@@ -14,12 +14,24 @@ bool Gardien::move (double dx, double dy){
 	int Y = (int) (_y + dy) / Environnement::scale;
 	
 	// Protect the program by not allowing coordinates outside the range
-	if ((X<0) || (Y<0) || (Y >= _l->width()) || (X >= _l->height())){
+	if ((X<0) || (Y<0) || (Y >= _l->height()) || (X >= _l->width())){
 		return false;
 	}
 
-	// Check if the map is empty in the new position
-	if (EMPTY == _l -> data (X,Y)){
+	// We round up values and if the guardian is over another case by rounding up he is blocking that new case instead
+	// We need to make sure he actually moves before checking if the new position is safe
+	if (X != ((int) _x/Environnement::scale) || Y != ((int) _y/Environnement::scale)) {
+		// Check if the map is empty in the new position
+		if (EMPTY == _l -> data (X,Y)){
+			// Move their 'not walking on' bit ('1') inside the maze
+			((Labyrinthe *) _l)->set_data ((int) X, (int) Y, '1');
+			((Labyrinthe *) _l)->set_data (((int) _x/Environnement::scale), ((int) _y/Environnement::scale), '\0');
+			// Evolve the Gardien's positions
+			_x += dx;
+			_y += dy;
+			return true;
+		}
+	} else {
 		// Evolve the Gardien's positions
 		_x += dx;
 		_y += dy;
@@ -200,7 +212,7 @@ int Gardien::check_availability(int ix_x, int ix_y){
 	 */
 
 	// If the point is inside the grid...
-	if ((ix_x>=0) && (ix_y>=0) && (ix_x<_l->height()) && (ix_y<_l->width())){
+	if ((ix_x>=0) && (ix_y>=0) && (ix_x<_l->width()) && (ix_y<_l->height())){
 		// If it is not empty
 		if (EMPTY != _l->data(ix_x, ix_y)){
 			// Chasseur is not visible, return 1

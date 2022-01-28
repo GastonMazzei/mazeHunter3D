@@ -47,24 +47,31 @@ bool Chasseur::move_aux (double dx, double dy){
 			"/" + std::to_string((int) CHASSEUR_LIFE )).c_str());
 	}
 
-
-	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale),
-							 (int)((_y + dy) / Environnement::scale))){
-		// If the move is allowed: do it, return true
+	int X = (int) (_x + dx) / Environnement::scale;
+	int Y = (int) (_y + dy) / Environnement::scale;
+	
+	// We need to make sure he actually moves before checking if the new position is safe
+	if (X != ((int) _x/Environnement::scale) || Y != ((int) _y/Environnement::scale)) {
+		if (EMPTY == _l -> data (X, Y)) {
+			// Move their 'not walking on' bit ('1') inside the maze
+			((Labyrinthe *) _l)->set_data ((int) X, (int) Y, '1');
+			((Labyrinthe *) _l)->set_data (((int) _x/Environnement::scale), ((int) _y/Environnement::scale), '\0');
+			// If the move is allowed: do it, return true
+			_x += dx;
+			_y += dy;
+			return true;
+		} else if (BOUNTY_TAG == _l -> data (X, Y)) {
+		
+			// If the move is not allowed, but that is because the treasure is ahead
+			// EXIT CONDITION: you have won, you found the treasure :-)
+			std::cout << "CONGRATULATIONS! YOU HAVE WON ;-)" << std::endl;
+			exit(0);
+		} else return false;	// Move not possible
+	} else {
 		_x += dx;
 		_y += dy;
 		return true;
-	} else if (BOUNTY_TAG == _l -> data ((int)((_x + dx) / Environnement::scale),
-							 (int)((_y + dy) / Environnement::scale))){
-		
-		// If the move is not allowed, but that is because the treasure is ahead
-		// EXIT CONDITION: you have won, you found the treasure :-)
-		std::cout << "CONGRATULATIONS! YOU HAVE WON ;-)" << std::endl;
-		exit(0);
 	}
-
-	// Move not possible
-	return false;
 }
 
 /*
@@ -86,8 +93,8 @@ bool Chasseur::process_fireball (float dx, float dy)
 	// Compute the normal vector to the Fireball's trajectory
 	double Ox = -dy / (std::sqrt(dx*dx+dy*dy));
 	double Oy = dx / (std::sqrt(dx*dx+dy*dy));
-	if ((((int) (_fb->get_x()+dx + Ox))/Environnement::scale >= _l->height()) ||
-		(((int) (_fb->get_y() + dy + Oy))/Environnement::scale >= _l->width())){
+	if ((((int) (_fb->get_x()+dx + Ox))/Environnement::scale >= _l->width()) ||
+		(((int) (_fb->get_y() + dy + Oy))/Environnement::scale >= _l->height())){
 		// If the fireball is travelling too close to the walls it should explode
 		return false;
 	}
@@ -114,7 +121,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 	}
 	else {
 		// The fireball can't advance. It  should explode!
-		float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
+		float	dmax2 = (_l -> height ())*(_l -> height ()) + (_l -> width ())*(_l -> width ());
 		float	x = (_x - _fb -> get_x ()) / Environnement::scale;
 		float	y = (_y - _fb -> get_y ()) / Environnement::scale;
 		float	dist2 = x*x + y*y;

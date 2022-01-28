@@ -31,7 +31,7 @@ bool Labyrinthe::is_lab (char c) {
 }
 
 void Labyrinthe::print() {
-	int height = this->height(), width = this->width();
+	int height = this->width(), width = this->height();
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			if (this->_data[i][j] == EMPTY)
@@ -142,7 +142,7 @@ void Labyrinthe::walls_create () {
 	int limit = 258;
 	Wall *walls = (Wall *) malloc(limit*sizeof(Wall));
 	CHECK((walls == NULL), 0);
-	int nb_walls = 0, height = this->height(), width = this->width(), nb_posters = 0;
+	int nb_walls = 0, height = this->width(), width = this->height(), nb_posters = 0;
 	Wall *posters = (Wall *) malloc(this->_npicts * sizeof(Wall));
 	CHECK((posters == NULL), 0);
 	
@@ -231,7 +231,7 @@ void Labyrinthe::objects_create() {
 	Box *marks = (Box *) malloc(this->_nmarks * sizeof(Box));
 	CHECK((marks == NULL), 0);
 	this->_guards = new Mover* [this->_nguards + 1];
-	int height = this->height(), width = this->width();
+	int height = this->width(), width = this->height();
 	
 	int j,i = 0, nb_boxes = 0, nb_guards = 1, nb_marks = 0;
 	//guards is initialised to 1 to take into account the player in pos 0
@@ -345,4 +345,9 @@ Labyrinthe::Labyrinthe (char* filename) {
 	//we fill it with the other objects
 	objects_create ();
 }
+
+void Labyrinthe::set_data (int i, int j, char value) {
+	if (i >= 0 && i < this->width() && j >= 0 && j < this->height()) this->_data[i][j] = value;
+}
+
 
